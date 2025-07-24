@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose'
+import mongoose, { model, Schema } from 'mongoose'
 import { ILocalPoliceCenter } from './LocalPoliceInterface'
 
 const LocalPoliceCenterSchema = new Schema<ILocalPoliceCenter>(
@@ -18,8 +18,7 @@ const LocalPoliceCenterSchema = new Schema<ILocalPoliceCenter>(
     timestamps: true, // Automatically adds createdAt and updatedAt
   },
 )
-
-export default mongoose.model<ILocalPoliceCenter>(
+const LocalPoliceCenter = model<ILocalPoliceCenter>(
   'LocalPoliceCenter',
   LocalPoliceCenterSchema,
 )

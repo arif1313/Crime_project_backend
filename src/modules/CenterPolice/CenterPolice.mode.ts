@@ -15,8 +15,7 @@ const CenterPoliceSchema = new Schema<ICenterPolice>(
     isDeleted: { type: Boolean, default: false },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true,
   },
 )
-
-export default mongoose.model<ICenterPolice>('CenterPolice', CenterPoliceSchema)
+const CenterPolice = mode<ICenterPolice>('CenterPolice', CenterPoliceSchema)

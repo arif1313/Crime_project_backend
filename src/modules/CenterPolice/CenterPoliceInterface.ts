@@ -9,6 +9,6 @@ export type ICenterPolice = {
   status?: string
   isBlocked: boolean
   isDeleted: boolean
-  createdAt: string // or Date
-  updatedAt: string // or Date
+  createdAt: string
+  updatedAt: string
 }

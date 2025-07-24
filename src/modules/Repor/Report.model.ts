@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose'
+import mongoose, { model, Schema } from 'mongoose'
 import { IReport } from './ReportInterface'
 
 const ReportSchema = new Schema<IReport>(
@@ -20,8 +20,7 @@ const ReportSchema = new Schema<IReport>(
     status: { type: String },
   },
   {
-    timestamps: true, // adds createdAt and updatedAt automatically
+    timestamps: true,
   },
 )
-
-export default mongoose.model<IReport>('Report', ReportSchema)
+const Report = model<IReport>('Report', ReportSchema)
