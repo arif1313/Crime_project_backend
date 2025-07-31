@@ -3,8 +3,8 @@ import { LocalUserServices } from "./LocalUser.service";
 const createLocalUser= async(req:Request, res:Response)=>{
 
    try{
-     const localUser=req.body
-    const result= LocalUserServices.createLocalUserDB(localUser)
+   const localUserData = req.body.localuser;;
+    const result= await LocalUserServices.createLocalUserDB(localUserData)
     res.status(200).json({
         success:true,
         massege:'localUser Create succesfully',
