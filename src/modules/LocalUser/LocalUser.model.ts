@@ -1,5 +1,5 @@
 import mongoose, { model, Schema } from 'mongoose'
-import { ILocalUser } from './LocalUserInterface'
+import { ILocalUser } from './LocalUser.Interface'
 
 const LocalUserSchema = new Schema<ILocalUser>(
   {
@@ -25,4 +25,4 @@ const LocalUserSchema = new Schema<ILocalUser>(
     timestamps: true, // adds createdAt and updatedAt automatically
   },
 )
-const LocalUser = model<ILocalUser>('LocalUser', LocalUserSchema)
+export const LocalUserModel = model<ILocalUser>('LocalUser', LocalUserSchema)

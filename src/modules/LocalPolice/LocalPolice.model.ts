@@ -1,13 +1,12 @@
 import mongoose, { model, Schema } from 'mongoose'
-import { ILocalPoliceCenter } from './LocalPoliceInterface'
-
-const LocalPoliceCenterSchema = new Schema<ILocalPoliceCenter>(
+import { ILocalPoliceStation } from './LocalPoliceInterface'
+const LocalPoliceCenterSchema = new Schema<ILocalPoliceStation>(
   {
     userId: { type: String, required: true },
     stationName: { type: String, required: true },
     logo: { type: String },
     contactNumber: { type: String },
-    emergencyContact1: { type: String },
+    emergencyContact1: { type: String }, 
     emergencyContact2: { type: String },
     stationAddress: { type: String },
     status: { type: String },
@@ -18,7 +17,7 @@ const LocalPoliceCenterSchema = new Schema<ILocalPoliceCenter>(
     timestamps: true, // Automatically adds createdAt and updatedAt
   },
 )
-const LocalPoliceCenter = model<ILocalPoliceCenter>(
-  'LocalPoliceCenter',
+const LocalPoliceStationModel = model<ILocalPoliceStation>(
+  'LocalPoliceStation',
   LocalPoliceCenterSchema,
 )

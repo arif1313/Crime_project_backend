@@ -1,4 +1,4 @@
-export type ILocalPoliceCenter = {
+export type ILocalPoliceStation = {
   id: string
   userId: string
   stationName: string

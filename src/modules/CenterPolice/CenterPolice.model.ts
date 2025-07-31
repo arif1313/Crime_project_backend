@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { model, Schema } from 'mongoose'
 import { ICenterPolice } from './CenterPoliceInterface'
 
 const CenterPoliceSchema = new Schema<ICenterPolice>(
@@ -18,4 +18,4 @@ const CenterPoliceSchema = new Schema<ICenterPolice>(
     timestamps: true,
   },
 )
-const CenterPolice = mode<ICenterPolice>('CenterPolice', CenterPoliceSchema)
+export const CenterPoliceModel = model<ICenterPolice>('CenterPolice', CenterPoliceSchema)
