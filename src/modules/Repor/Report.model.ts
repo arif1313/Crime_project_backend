@@ -23,4 +23,4 @@ const ReportSchema = new Schema<IReport>(
     timestamps: true,
   },
 )
-const ReportModel = model<IReport>('Report', ReportSchema)
+ export const ReportModel = model<IReport>('Report', ReportSchema)

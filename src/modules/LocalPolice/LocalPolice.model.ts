@@ -17,7 +17,7 @@ const LocalPoliceCenterSchema = new Schema<ILocalPoliceStation>(
     timestamps: true, // Automatically adds createdAt and updatedAt
   },
 )
-const LocalPoliceStationModel = model<ILocalPoliceStation>(
+export const LocalPoliceStationModel = model<ILocalPoliceStation>(
   'LocalPoliceStation',
   LocalPoliceCenterSchema,
 )
