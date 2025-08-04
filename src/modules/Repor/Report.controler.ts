@@ -35,10 +35,58 @@ const getallReports = async (req: Request, res: Response) => {
     }
 }
 
-    
+    const getRepotById = async (req: Request, res: Response) => {
+  try {
+    const { reportId } = req.query;
+
+    let result;
+    if (reportId) {
+      result = await ReportServices.findByReportId(reportId as string);
+    } else {
+      result = await ReportServices.getallReportDB();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: " single Report retrieved successfully",
+      data: result,
+    });
+  } catch (err) {
+    console.log(err);
+   
+  }
+};
+
+const updateReport = async (req: Request, res: Response) => {
+  try {
+    const { reportId } = req.params;
+    const updateData = req.body;
+
+    if (!reportId) {
+      return res.status(400).json({ success: false, message: "Report ID is required" });
+    }
+
+    const updatedReport = await ReportServices.updateReportByReportId(reportId, updateData);
+
+    if (!updatedReport) {
+      return res.status(404).json({ success: false, message: "Report not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Report updated successfully",
+      data: updatedReport,
+    });
+  } catch (err) {
+   console.log(err)
+  }
+};
+
 export const ReportControler={
     createReport,
-    getallReports
+    getallReports,
+    getRepotById,
+    updateReport
 }
 
 
