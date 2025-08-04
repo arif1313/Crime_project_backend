@@ -3,6 +3,7 @@ import cors from 'cors'
 import { LocalUserRoutes } from './modules/LocalUser/LocalUser.router'
 import { centerPoliceRoutes } from './modules/CenterPolice/CenterPolice.router'
 import { ReportRoutes } from './modules/Repor/Report.router'
+import { localPoliceRoutes } from './modules/LocalPolice/LocalPolice.router'
 
 const app: Application = express()
 
@@ -13,6 +14,7 @@ app.use(cors())
 app.use('/api/v1/localuser',LocalUserRoutes)
 app.use('/api/v1/centerPolice',centerPoliceRoutes)
 app.use('/api/v1/Report',ReportRoutes)
+app.use('/api/v1/localPolice',localPoliceRoutes)
 
 app.get('/', (req: Request, res: Response) => {
   res.send('this is my crime alert project ')

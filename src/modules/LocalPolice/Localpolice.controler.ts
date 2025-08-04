@@ -5,7 +5,7 @@ import { localPoliceServices } from "./LocalPolice.service";
 const createLocalPolice= async(req:Request, res:Response)=>{
 
    try{
-     const LocalPoliceData=req.body.LocalPolice
+     const LocalPoliceData=req.body.localpolice
     const result= await localPoliceServices.createLocalPoliceDB(LocalPoliceData)
     res.status(200).json({
         success:true,
