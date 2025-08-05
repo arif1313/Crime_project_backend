@@ -23,7 +23,12 @@ const updateReportByReportId = async (reportId: string, updateData: Partial<IRep
   );
   return result;
 };
+const deleteReportByReportId = async (reportId: string) => {
+  const result = await ReportModel.findOneAndDelete({ reportId });
+  return result;
+};
+
 export const ReportServices={
    createReportDB, getallReportDB,
-   findByReportId, updateReportByReportId
+   findByReportId, updateReportByReportId,deleteReportByReportId
 }

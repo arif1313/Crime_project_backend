@@ -81,12 +81,37 @@ const updateReport = async (req: Request, res: Response) => {
    console.log(err)
   }
 };
+const deleteReport = async (req: Request, res: Response) => {
+  try {
+    const { reportId } = req.params;
+
+    if (!reportId) {
+      return res.status(400).json({ success: false, message: "Report ID is required" });
+    }
+
+    const deletedReport = await ReportServices.deleteReportByReportId(reportId);
+    const result= await ReportServices.getallReportDB()
+    if (!deletedReport) {
+      return res.status(404).json({ success: false, message: "Report not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Report deleted successfully",
+      data: result,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Failed to delete report" });
+  }
+};
 
 export const ReportControler={
     createReport,
     getallReports,
     getRepotById,
-    updateReport
+    updateReport,
+    deleteReport
 }
 
 
