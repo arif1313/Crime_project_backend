@@ -14,8 +14,7 @@ app.use(cors())
 app.use('/api/v1/localuser',LocalUserRoutes)
 app.use('/api/v1/centerPolice',centerPoliceRoutes)
 app.use('/api/v1/report',ReportRoutes) 
-app.use('/api/v1/localPolice',localPoliceRoutes)
-
+app.use('/api/v1/localPolice',localPoliceRoutes) 
 app.get('/', (req: Request, res: Response) => {
   res.send('this is my crime alert project ')
 })
