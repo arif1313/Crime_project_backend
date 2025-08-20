@@ -14,6 +14,6 @@ export type IReport = {
   createdAt: string // or Date
   updatedAt: string // or Date
   isBlocked: boolean
-  isDelete: boolean
+  isDeleted: boolean
   status?: string
 }

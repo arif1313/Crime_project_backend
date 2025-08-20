@@ -23,12 +23,28 @@ const updateReportByReportId = async (reportId: string, updateData: Partial<IRep
   );
   return result;
 };
-const deleteReportByReportId = async (reportId: string) => {
-  const result = await ReportModel.findOneAndDelete({ reportId });
-  return result;
+// Soft delete
+const softdeleteReportByReportId = async (reportId: string) => {
+  return await ReportModel.findOneAndUpdate(
+    { reportId },
+    { isDeleted: true },
+    { new: true }
+  );
 };
 
+// Restore
+const restoreReportByReportId = async (reportId: string) => {
+  return await ReportModel.findOneAndUpdate(
+    { reportId },
+    { isDeleted: false },
+    { new: true }
+  );
+};
 export const ReportServices={
-   createReportDB, getallReportDB,
-   findByReportId, updateReportByReportId,deleteReportByReportId
+   createReportDB, 
+   getallReportDB,
+   findByReportId,
+    updateReportByReportId,
+   softdeleteReportByReportId,
+   restoreReportByReportId
 }

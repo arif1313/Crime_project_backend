@@ -20,21 +20,21 @@ const createLocalPolice= async(req:Request, res:Response)=>{
 
 
 
-const getallLocalPolice= async (req: Request, res: Response) => {
+// const getallLocalPolice= async (req: Request, res: Response) => {
 
-    try{
+//     try{
 
-    const result = await localPoliceServices.getallLocalPoliceDB
-    res.status(200).json({
-      success: true,
-      message: "localUser retrieved successfully",
-      data: result,
-    });
-    }catch(err){
+//     const result = await localPoliceServices.getallLocalPoliceDB
+//     res.status(200).json({
+//       success: true,
+//       message: "localpolices retrieved successfully",
+//       data: result,
+//     });
+//     }catch(err){
  
-  console.log(err)
-    }
-}
+//   console.log(err)
+//     }
+// }
 
     const getLocalPoliceById = async (req: Request, res: Response) => {
   try {
@@ -49,7 +49,7 @@ const getallLocalPolice= async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: " single user retrieved successfully",
+      message: "localPolice retrieved successfully",
       data: result,
     });
   } catch (err) {
@@ -82,30 +82,38 @@ const updateLocalPolice = async (req: Request, res: Response) => {
    console.log(err)
   }
 };
-const deleteLocalPolice = async (req: Request, res: Response) => {
+// Soft delete
+const softDeleteLocalPolice = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
+    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
 
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "localpolice ID is required" });
-    }
+    const result = await localPoliceServices.softDeleteLocalPoliceById(userId);
+    if (!result) return res.status(404).json({ success: false, message: "User not found" });
 
-    const deletedlocalusr = await localPoliceServices.deleteLocalPoliceById(userId);
-    const result= await localPoliceServices.getallLocalPoliceDB()
-    if (!deletedlocalusr) {
-      return res.status(404).json({ success: false, message: "localuser not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "localpolice deleted successfully",
-      data: result,
-    });
+   
+    res.status(200).json({ success: true, message: "Soft deleted successfully", data: result });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Failed to delete localpolice" });
+    res.status(500).json({ success: false, message: "Failed to soft delete" });
+  }
+};
+
+// Restore
+const restoreLocalPolice = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const restored = await localPoliceServices.restoreLocalPoliceById(userId);
+    if (!restored) return res.status(404).json({ success: false, message: "User not found" });
+
+    res.status(200).json({ success: true, message: "Restored successfully", data: restored });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to restore" });
   }
 };
 export const LocalPoliceControler={
-    createLocalPolice,getallLocalPolice,getLocalPoliceById,updateLocalPolice,deleteLocalPolice
+    createLocalPolice,
+    getLocalPoliceById,
+    updateLocalPolice,
+    softDeleteLocalPolice,
+    restoreLocalPolice
 }

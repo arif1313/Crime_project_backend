@@ -17,21 +17,6 @@ const createLocalUser= async(req:Request, res:Response)=>{
 }
 
 
-const getallLocalUser= async (req: Request, res: Response) => {
-
-    try{
-
-    const result = await LocalUserServices.getallLocalUserDB
-    res.status(200).json({
-      success: true,
-      message: "localUser retrieved successfully",
-      data: result,
-    });
-    }catch(err){
- 
-  console.log(err)
-    }
-}
 
     const getLocalUserById = async (req: Request, res: Response) => {
   try {
@@ -46,7 +31,7 @@ const getallLocalUser= async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: " single user retrieved successfully",
+      message: "Localuser retrieved successfully",
       data: result,
     });
   } catch (err) {
@@ -79,30 +64,53 @@ const updateLocalUser = async (req: Request, res: Response) => {
    console.log(err)
   }
 };
-const deleteLocalUser = async (req: Request, res: Response) => {
+const softDeleteLocalUser = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "localuser ID is required" });
-    }
+    const deletedUser = await LocalUserServices.softDeleteLocalUserById(userId);
 
-    const deletedlocalusr = await LocalUserServices.deleteLocalUserById(userId);
-    const result= await LocalUserServices.getallLocalUserDB()
-    if (!deletedlocalusr) {
-      return res.status(404).json({ success: false, message: "localuser not found" });
+    if (!deletedUser) {
+      return res.status(404).json({ success: false, message: "Local user not found" });
     }
 
     res.status(200).json({
       success: true,
-      message: "localusr deleted successfully",
-      data: result,
+      message: "Local user soft deleted successfully",
+      data: deletedUser,
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ success: false, message: "Failed to delete localuser" });
+    res.status(500).json({ success: false, message: "Failed to soft delete local user" });
   }
 };
+
+// Restore
+const restoreLocalUser = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const restoredUser = await LocalUserServices.restoreLocalUserById(userId);
+
+    if (!restoredUser) {
+      return res.status(404).json({ success: false, message: "Local user not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Local user restored successfully",
+      data: restoredUser,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Failed to restore local user" });
+  }
+};
+
 export const LocalUserControler={
-    createLocalUser,getallLocalUser,getLocalUserById,updateLocalUser,deleteLocalUser
+    createLocalUser,
+    getLocalUserById,
+    updateLocalUser,
+    softDeleteLocalUser,
+    restoreLocalUser
 }

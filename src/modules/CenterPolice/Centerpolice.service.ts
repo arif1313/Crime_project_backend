@@ -6,7 +6,6 @@ const createcenterPoliceDB= async (CenterPolice:ICenterPolice)=>{
    return result
 }
 
-
 const getalcenterPoliceDB = async () => {
   const result = await CenterPoliceModel.find()
   return result
@@ -16,21 +15,35 @@ const findByCenterPoliceId = async (id: string) => {
 };
 const updateCenterpoliceById = async (userId: string, updateData: Partial<ICenterPolice>) => {
   const result = await CenterPoliceModel.findOneAndUpdate(
-    { userId },        
+    {  userId, isDeleted: false },        
     updateData,          
     { new: true }         
   );
   return result;
 };
-const deletecenterPoliceById = async (userId: string) => {
-  const result = await CenterPoliceModel.findOneAndDelete({ userId });
-  return result;
+// Soft delete
+const softdeletecenterPoliceById = async (userId: string) => {
+  return await CenterPoliceModel.findOneAndUpdate(
+    { userId },
+    { isDeleted: true },
+    { new: true }
+  );
+};
+
+// Restore
+const restorecenterPoliceById = async (userId: string) => {
+  return await CenterPoliceModel.findOneAndUpdate(
+    { userId },
+    { isDeleted: false },
+    { new: true }
+  );
 };
 export const centerPoliceServices={
    createcenterPoliceDB ,
-   deletecenterPoliceById,
+   softdeletecenterPoliceById,
    updateCenterpoliceById,
    findByCenterPoliceId,
-   getalcenterPoliceDB
+   getalcenterPoliceDB,
+   restorecenterPoliceById
 
 }

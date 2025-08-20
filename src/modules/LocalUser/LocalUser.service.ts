@@ -9,20 +9,43 @@ const getallLocalUserDB = async () => {
   return result
 }
 const findByLocalUserId = async (id: string) => {
-  return await LocalUserModel.findOne({ reportId: id });
+  return await LocalUserModel.findOne({ userId: id });
 };
-const updateLocalUserById = async (reportId: string, updateData: Partial<ILocalUser>) => {
+const updateLocalUserById = async (userId: string, updateData: Partial<ILocalUser>) => {
   const result = await LocalUserModel.findOneAndUpdate(
-    { reportId },        
+    { userId },        
     updateData,          
     { new: true }         
   );
   return result;
 };
-const deleteLocalUserById = async (reportId: string) => {
-  const result = await LocalUserModel.findOneAndDelete({ reportId });
+const softDeleteLocalUserById = async (userId: string) => {
+  const result = await LocalUserModel.findOneAndUpdate(
+    { userId },
+    { isDeleted: true },
+    { new: true }
+  );
+  return result;
+
+
+};
+
+
+// Restore soft-deleted user (optional)
+const restoreLocalUserById = async (userId: string) => {
+  const result = await LocalUserModel.findOneAndUpdate(
+    { userId },
+    { isDeleted: false },
+    { new: true }
+  );
   return result;
 };
 export const LocalUserServices={
-   createLocalUserDB ,getallLocalUserDB,findByLocalUserId,updateLocalUserById,deleteLocalUserById
+   createLocalUserDB ,
+   getallLocalUserDB,
+   findByLocalUserId,
+   updateLocalUserById,
+   softDeleteLocalUserById,
+   restoreLocalUserById
+
 }

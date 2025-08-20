@@ -26,6 +26,30 @@ const deleteLocalPoliceById = async (userId: string) => {
   const result = await LocalPoliceStationModel.findOneAndDelete({ userId });
   return result;
 };
+
+// Soft delete
+const softDeleteLocalPoliceById = async (userId: string) => {
+  return await LocalPoliceStationModel.findOneAndUpdate(
+    { userId },
+    { isDeleted: true },
+    { new: true }
+  );
+};
+
+// Restore
+const restoreLocalPoliceById = async (userId: string) => {
+  return await LocalPoliceStationModel.findOneAndUpdate(
+    { userId },
+    { isDeleted: false },
+    { new: true }
+  );
+};
 export const localPoliceServices={
-   createLocalPoliceDB ,getallLocalPoliceDB,findByLocalPoliceId,updateLocalpoliceById,deleteLocalPoliceById
+   createLocalPoliceDB ,
+   getallLocalPoliceDB,
+   findByLocalPoliceId,
+   updateLocalpoliceById,
+   deleteLocalPoliceById,
+   softDeleteLocalPoliceById,
+   restoreLocalPoliceById
 }

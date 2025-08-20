@@ -6,8 +6,9 @@ import { ReportControler } from "./Report.controler"
 const router= express.Router()
 router.post('/create-report',ReportControler.createReport)
 router.get('/',ReportControler.getRepotById)
-router.get('/',ReportControler.getallReports)
-router.put("/update/:reportId", ReportControler.updateReport);
-router.delete('/delete/:reportId', ReportControler.deleteReport);
 
+router.put("/update/:reportId", ReportControler.updateReport);
+
+router.delete("/delete/:reportId",ReportControler.softdeleteReport );   // Soft delete
+router.patch("/restore/:reportId", ReportControler.restoreReport);
 export const ReportRoutes=router

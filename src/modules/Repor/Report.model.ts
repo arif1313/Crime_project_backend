@@ -16,7 +16,7 @@ const ReportSchema = new Schema<IReport>(
     reporterContact: { type: String },
     reporterAddress: { type: String },
     isBlocked: { type: Boolean, default: false },
-    isDelete: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
     status: { type: String },
   },
   {

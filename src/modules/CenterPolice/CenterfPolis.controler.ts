@@ -17,21 +17,7 @@ const createCenterPolice= async(req:Request, res:Response)=>{
    }
 }
 
-const getallCenterPolice= async (req: Request, res: Response) => {
 
-    try{
-
-    const result = await centerPoliceServices.getalcenterPoliceDB
-    res.status(200).json({
-      success: true,
-      message: "center police retrieved successfully",
-      data: result,
-    });
-    }catch(err){
- 
-  console.log(err)
-    }
-}
 
     const getCenterPoliceById = async (req: Request, res: Response) => {
   try {
@@ -41,12 +27,12 @@ const getallCenterPolice= async (req: Request, res: Response) => {
     if (userId) {
       result = await centerPoliceServices.findByCenterPoliceId(userId as string);
     } else {
-      result = await centerPoliceServices.getalcenterPoliceDB
+      result = await centerPoliceServices.getalcenterPoliceDB()
     }
 
     res.status(200).json({
       success: true,
-      message: " single centerPolice retrieved successfully",
+      message: "centerPolice retrieved successfully",
       data: result,
     });
   } catch (err) {
@@ -79,31 +65,52 @@ const updateCenterPolice = async (req: Request, res: Response) => {
    console.log(err)
   }
 };
-const deleteLocalPolice = async (req: Request, res: Response) => {
+const softDeleteCenterPolice = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "center police ID is required" });
-    }
+    const deletedUser = await centerPoliceServices.softdeletecenterPoliceById(userId);
 
-    const deletedCenterpolice = await centerPoliceServices.deletecenterPoliceById(userId);
-    const result= await centerPoliceServices.getalcenterPoliceDB
-    if (!deletedCenterpolice) {
-      return res.status(404).json({ success: false, message: "center police not found" });
+    if (!deletedUser) {
+      return res.status(404).json({ success: false, message: "centerPolice not found" });
     }
 
     res.status(200).json({
       success: true,
-      message: "center police deleted successfully",
-      data: result,
+      message: "centerPolice soft deleted successfully",
+      data: deletedUser,
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ success: false, message: "Failed to delete center police" });
+    res.status(500).json({ success: false, message: "Failed to soft delete centerPolice" });
+  }
+};
+
+// Restore
+const restoreCenterPolice = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const restoredUser = await centerPoliceServices.restorecenterPoliceById(userId);
+
+    if (!restoredUser) {
+      return res.status(404).json({ success: false, message: "centerPolice not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "centerPolice restored successfully",
+      data: restoredUser,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Failed to restore centerPolice" });
   }
 };
 export const centerPoliceControler={
     createCenterPolice,
-    updateCenterPolice,deleteLocalPolice,getCenterPoliceById,getallCenterPolice
+    updateCenterPolice,
+    softDeleteCenterPolice,
+    getCenterPoliceById,
+    restoreCenterPolice
 }
