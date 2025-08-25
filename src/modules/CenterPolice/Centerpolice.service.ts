@@ -38,12 +38,24 @@ const restorecenterPoliceById = async (userId: string) => {
     { new: true }
   );
 };
+
+const liveSearchCenterPolice = async (query: string) => {
+  return await CenterPoliceModel.find({
+    $or: [
+      { centerStationName: { $regex: query, $options: "i" } },
+      { centerStationAddress: { $regex: query, $options: "i" } }
+    ],
+    isDeleted: false
+  }).limit(10); // Limit results for performance
+};
+
 export const centerPoliceServices={
    createcenterPoliceDB ,
    softdeletecenterPoliceById,
    updateCenterpoliceById,
    findByCenterPoliceId,
    getalcenterPoliceDB,
-   restorecenterPoliceById
+   restorecenterPoliceById,
+   liveSearchCenterPolice
 
 }

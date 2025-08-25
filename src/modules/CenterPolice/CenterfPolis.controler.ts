@@ -107,10 +107,33 @@ const restoreCenterPolice = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Failed to restore centerPolice" });
   }
 };
+
+const liveSearchCenterPolice = async (req: Request, res: Response) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || q.toString().trim() === "") {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const results = await centerPoliceServices.liveSearchCenterPolice(q as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Search results",
+      data: results,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search failed" });
+  }
+};
+
 export const centerPoliceControler={
     createCenterPolice,
     updateCenterPolice,
     softDeleteCenterPolice,
     getCenterPoliceById,
-    restoreCenterPolice
+    restoreCenterPolice,
+    liveSearchCenterPolice
 }
