@@ -103,13 +103,63 @@ const updateReport = async (req: Request, res: Response) => {
   }
 };
 
+
+const liveSearchreport = async (req: Request, res: Response) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || q.toString().trim() === "") {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const results = await ReportServices.liveSearchReport(q as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Search results",
+      data: results,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search failed" });
+  }
+};
+
+const searchReportsByType = async (req: Request, res: Response) => {
+  try {
+    const { type } = req.query;
+
+    if (!type || type.toString().trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Report type query is required",
+      });
+    }
+
+    const results = await ReportServices.searchReportsByType(type as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Reports retrieved successfully",
+      data: results,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to search reports by type",
+    });
+  }
+};
+
 export const ReportControler={
     createReport,
- 
     getRepotById,
     updateReport,
     softdeleteReport,
-    restoreReport
+    restoreReport,
+    liveSearchreport,
+    searchReportsByType
 }
 
 

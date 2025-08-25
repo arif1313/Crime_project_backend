@@ -40,11 +40,36 @@ const restoreReportByReportId = async (reportId: string) => {
     { new: true }
   );
 };
+
+const liveSearchReport = async (query: string) => {
+  return await ReportModel.find({
+    $or: [
+      { reportTitle: { $regex: query, $options: "i" } },
+      { reportLocation: { $regex: query, $options: "i" } }
+    ],
+    isDeleted: false
+  }).limit(10); // Limit results for performance
+};
+
+
+
+
+// Search reports by type
+const searchReportsByType = async (reportType: string) => {
+  return await ReportModel.find({
+    reportType: { $regex: reportType, $options: "i" }, // case-insensitive search
+    isDeleted: false, // exclude soft deleted reports
+  });
+};
+
+
 export const ReportServices={
    createReportDB, 
    getallReportDB,
    findByReportId,
     updateReportByReportId,
    softdeleteReportByReportId,
-   restoreReportByReportId
+   restoreReportByReportId,
+   liveSearchReport,
+   searchReportsByType
 }

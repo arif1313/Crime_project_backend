@@ -11,4 +11,7 @@ router.put("/update/:reportId", ReportControler.updateReport);
 
 router.delete("/delete/:reportId",ReportControler.softdeleteReport );   // Soft delete
 router.patch("/restore/:reportId", ReportControler.restoreReport);
+router.get("/search", ReportControler.liveSearchreport);
+
+router.get("/search", ReportControler.searchReportsByType);
 export const ReportRoutes=router
