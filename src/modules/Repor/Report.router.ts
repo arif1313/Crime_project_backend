@@ -14,4 +14,6 @@ router.patch("/restore/:reportId", ReportControler.restoreReport);
 router.get("/search", ReportControler.liveSearchreport);
 
 router.get("/search", ReportControler.searchReportsByType);
+
+router.get("/searchByEmail", ReportControler.searchReportByEmail);
 export const ReportRoutes=router

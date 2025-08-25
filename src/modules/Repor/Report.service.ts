@@ -62,6 +62,13 @@ const searchReportsByType = async (reportType: string) => {
   });
 };
 
+const searchReportsByEmail = async (email: string) => {
+  return await ReportModel.find({
+    reporterEmail: { $regex: email, $options: "i" }, // partial + case-insensitive
+    isDeleted: false, // skip deleted
+  });
+};
+
 
 export const ReportServices={
    createReportDB, 
@@ -71,5 +78,6 @@ export const ReportServices={
    softdeleteReportByReportId,
    restoreReportByReportId,
    liveSearchReport,
-   searchReportsByType
+   searchReportsByType,
+   searchReportsByEmail
 }

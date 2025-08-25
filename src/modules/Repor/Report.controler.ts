@@ -152,6 +152,33 @@ const searchReportsByType = async (req: Request, res: Response) => {
   }
 };
 
+const searchReportByEmail = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.query;
+
+    if (!email || email.toString().trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Reporter email query is required",
+      });
+    }
+
+    const results = await ReportServices.searchReportsByEmail(email as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Reports retrieved successfully by email",
+      data: results,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to search reports by email",
+    });
+  }
+};
+
 export const ReportControler={
     createReport,
     getRepotById,
@@ -159,7 +186,8 @@ export const ReportControler={
     softdeleteReport,
     restoreReport,
     liveSearchreport,
-    searchReportsByType
+    searchReportsByType,
+    searchReportByEmail
 }
 
 
