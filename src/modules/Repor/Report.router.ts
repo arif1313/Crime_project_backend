@@ -16,4 +16,7 @@ router.get("/search", ReportControler.liveSearchreport);
 router.get("/search", ReportControler.searchReportsByType);
 
 router.get("/searchByEmail", ReportControler.searchReportByEmail);
+
+router.get("/searchByContact", ReportControler.searchReportsByContact);
+router.get("/searchByStatus", ReportControler.searchReportsByStatus);
 export const ReportRoutes=router

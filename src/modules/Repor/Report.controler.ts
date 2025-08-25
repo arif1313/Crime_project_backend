@@ -179,6 +179,60 @@ const searchReportByEmail = async (req: Request, res: Response) => {
   }
 };
 
+
+const searchReportsByContact = async (req: Request, res: Response) => {
+  try {
+    const { contact } = req.query;
+
+    if (!contact || contact.toString().trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Reporter contact query is required",
+      });
+    }
+
+    const results = await ReportServices.searchReportsByContact(contact as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Reports retrieved successfully by contact",
+      data: results,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to search reports by contact",
+    });
+  }
+};
+
+const searchReportsByStatus = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.query;
+
+    if (!status || status.toString().trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Status query is required",
+      });
+    }
+
+    const results = await ReportServices.searchReportsByStatus(status as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Reports retrieved successfully by status",
+      data: results,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to search reports by status",
+    });
+  }
+};
 export const ReportControler={
     createReport,
     getRepotById,
@@ -187,7 +241,9 @@ export const ReportControler={
     restoreReport,
     liveSearchreport,
     searchReportsByType,
-    searchReportByEmail
+    searchReportByEmail,
+    searchReportsByContact,
+    searchReportsByStatus
 }
 
 

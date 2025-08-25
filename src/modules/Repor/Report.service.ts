@@ -70,6 +70,23 @@ const searchReportsByEmail = async (email: string) => {
 };
 
 
+
+// Search reports by reporterContact
+const searchReportsByContact = async (contact: string) => {
+  return await ReportModel.find({
+    reporterContact: { $regex: contact, $options: "i" }, // partial & case-insensitive
+    isDeleted: false,
+  });
+};
+
+// Search reports by status
+const searchReportsByStatus = async (status: string) => {
+  return await ReportModel.find({
+    status: { $regex: status, $options: "i" }, // partial + case-insensitive
+    isDeleted: false,
+  });
+};
+
 export const ReportServices={
    createReportDB, 
    getallReportDB,
@@ -79,5 +96,7 @@ export const ReportServices={
    restoreReportByReportId,
    liveSearchReport,
    searchReportsByType,
-   searchReportsByEmail
+   searchReportsByEmail,
+   searchReportsByContact,
+   searchReportsByStatus
 }
