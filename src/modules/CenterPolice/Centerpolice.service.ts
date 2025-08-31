@@ -48,7 +48,25 @@ const liveSearchCenterPolice = async (query: string) => {
     isDeleted: false
   }).limit(10); // Limit results for performance
 };
+// 🔹 Search by Status
+const searchByStatus = async (status: string) => {
+  return await CenterPoliceModel.find({ status });
+};
 
+// 🔹 Search by Contact Number
+const searchByContactNumber = async (contactNumber: string) => {
+  return await CenterPoliceModel.find({ contactNumber });
+};
+
+// 🔹 Search by isBlocked
+const searchByIsBlocked = async (isBlocked: boolean) => {
+  return await CenterPoliceModel.find({ isBlocked });
+};
+
+// 🔹 Search by isDeleted
+const searchByIsDeleted = async (isDeleted: boolean) => {
+  return await CenterPoliceModel.find({ isDeleted });
+};
 export const centerPoliceServices={
    createcenterPoliceDB ,
    softdeletecenterPoliceById,
@@ -56,6 +74,10 @@ export const centerPoliceServices={
    findByCenterPoliceId,
    getalcenterPoliceDB,
    restorecenterPoliceById,
-   liveSearchCenterPolice
+   liveSearchCenterPolice,
+   searchByIsDeleted,
+   searchByIsBlocked,
+   searchByContactNumber,
+   searchByStatus,
 
 }

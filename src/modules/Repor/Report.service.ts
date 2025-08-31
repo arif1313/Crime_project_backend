@@ -86,6 +86,33 @@ const searchReportsByStatus = async (status: string) => {
     isDeleted: false,
   });
 };
+//combine search
+const searchReportsCombine = async (filters: {
+  reportType?: string;
+  reporterEmail?: string;
+  reporterContact?: string;
+  status?: string;
+}) => {
+  const query: any = { isDeleted: false };
+
+  if (filters.reportType) {
+    query.reportType = { $regex: filters.reportType, $options: "i" };
+  }
+
+  if (filters.reporterEmail) {
+    query.reporterEmail = { $regex: filters.reporterEmail, $options: "i" };
+  }
+
+  if (filters.reporterContact) {
+    query.reporterContact = { $regex: filters.reporterContact, $options: "i" };
+  }
+
+  if (filters.status) {
+    query.status = { $regex: filters.status, $options: "i" };
+  }
+
+  return await ReportModel.find(query);
+};
 
 export const ReportServices={
    createReportDB, 
@@ -98,5 +125,6 @@ export const ReportServices={
    searchReportsByType,
    searchReportsByEmail,
    searchReportsByContact,
-   searchReportsByStatus
+   searchReportsByStatus,
+   searchReportsCombine
 }

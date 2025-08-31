@@ -7,6 +7,11 @@ router.put("/update/:userId", centerPoliceControler.updateCenterPolice);
 router.delete('/delete/:userId', centerPoliceControler.softDeleteCenterPolice);
 router.patch("/restore/:userId", centerPoliceControler.restoreCenterPolice);
 router.get("/search", centerPoliceControler.liveSearchCenterPolice);
+
+router.get("/search/status", centerPoliceControler.searchByStatus);
+router.get("/search/contact", centerPoliceControler.searchByContactNumber);
+router.get("/search/isBlocked", centerPoliceControler.searchByIsBlocked);
+router.get("/search/isDeleted", centerPoliceControler.searchByIsDeleted);
 export const centerPoliceRoutes=router
 // fonted
 // import { useState } from "react";

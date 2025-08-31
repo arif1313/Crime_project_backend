@@ -110,10 +110,96 @@ const restoreLocalPolice = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Failed to restore" });
   }
 };
+
+
+// 🔎 Search by Status
+const searchByStatus = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.query;
+    if (!status) return res.status(400).json({ success: false, message: "Status is required" });
+
+    const results = await localPoliceServices.searchByStatus(status as string);
+    res.status(200).json({ success: true, data: results });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search by status failed" });
+  }
+};
+
+// 🔎 Search by Contact Number
+const searchByContactNumber = async (req: Request, res: Response) => {
+  try {
+    const { contactNumber } = req.query;
+    if (!contactNumber) return res.status(400).json({ success: false, message: "Contact number is required" });
+
+    const results = await localPoliceServices.searchByContactNumber(contactNumber as string);
+    res.status(200).json({ success: true, data: results });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search by contact number failed" });
+  }
+};
+
+// 🔎 Search by isBlocked
+const searchByIsBlocked = async (req: Request, res: Response) => {
+  try {
+    const { isBlocked } = req.query;
+    if (isBlocked === undefined) return res.status(400).json({ success: false, message: "isBlocked is required" });
+
+    const results = await localPoliceServices.searchByIsBlocked(isBlocked === "true");
+    res.status(200).json({ success: true, data: results });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search by isBlocked failed" });
+  }
+};
+
+// 🔎 Search by isDeleted
+const searchByIsDeleted = async (req: Request, res: Response) => {
+  try {
+    const { isDeleted } = req.query;
+    if (isDeleted === undefined) return res.status(400).json({ success: false, message: "isDeleted is required" });
+
+    const results = await localPoliceServices.searchByIsDeleted(isDeleted === "true");
+    res.status(200).json({ success: true, data: results });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search by isDeleted failed" });
+  }
+};
+
+
+const liveSearchLocalPolice = async (req: Request, res: Response) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || q.toString().trim() === "") {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const results = await localPoliceServices.liveSearchLocalPolice(q as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Live search results",
+      data: results,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Live search failed" });
+  }
+};
+
 export const LocalPoliceControler={
     createLocalPolice,
     getLocalPoliceById,
     updateLocalPolice,
     softDeleteLocalPolice,
-    restoreLocalPolice
+    restoreLocalPolice,
+
+    searchByStatus,
+  searchByContactNumber,
+  searchByIsBlocked,
+  searchByIsDeleted,
+  liveSearchLocalPolice
 }

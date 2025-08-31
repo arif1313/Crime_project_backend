@@ -44,6 +44,37 @@ const restoreLocalPoliceById = async (userId: string) => {
     { new: true }
   );
 };
+
+
+// 🔎 Search by Status
+const searchByStatus = async (status: string) => {
+  return await LocalPoliceStationModel.find({ status });
+};
+
+// 🔎 Search by Contact Number
+const searchByContactNumber = async (contactNumber: string) => {
+  return await LocalPoliceStationModel.find({ contactNumber });
+};
+
+// 🔎 Search by isBlocked
+const searchByIsBlocked = async (isBlocked: boolean) => {
+  return await LocalPoliceStationModel.find({ isBlocked });
+};
+
+// 🔎 Search by isDeleted
+const searchByIsDeleted = async (isDeleted: boolean) => {
+  return await LocalPoliceStationModel.find({ isDeleted });
+};
+
+const liveSearchLocalPolice = async (query: string) => {
+  return await LocalPoliceStationModel.find({
+    $or: [
+      { stationName: { $regex: query, $options: "i" } },
+      { stationAddress: { $regex: query, $options: "i" } },
+    ],
+  });
+};
+
 export const localPoliceServices={
    createLocalPoliceDB ,
    getallLocalPoliceDB,
@@ -51,5 +82,10 @@ export const localPoliceServices={
    updateLocalpoliceById,
    deleteLocalPoliceById,
    softDeleteLocalPoliceById,
-   restoreLocalPoliceById
+   restoreLocalPoliceById,
+     searchByStatus,
+  searchByContactNumber,
+  searchByIsBlocked,
+  searchByIsDeleted,
+  liveSearchLocalPolice
 }

@@ -107,10 +107,111 @@ const restoreLocalUser = async (req: Request, res: Response) => {
   }
 };
 
+
+
+const searchByRole = async (req: Request, res: Response) => {
+  try {
+    const { role } = req.params;
+    const result = await LocalUserServices.searchByRole(role);
+    res.status(200).json({ success: true, message: "Users by role", data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to search by role" });
+  }
+};
+
+const searchByStatus = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.params;
+    const result = await LocalUserServices.searchByStatus(status);
+    res.status(200).json({ success: true, message: "Users by status", data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to search by status" });
+  }
+};
+
+const searchByIsDeleted = async (req: Request, res: Response) => {
+  try {
+    const { isDeleted } = req.params;
+    const result = await LocalUserServices.searchByIsDeleted(isDeleted === "true");
+    res.status(200).json({ success: true, message: "Users by isDeleted", data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to search by isDeleted" });
+  }
+};
+
+const searchByIsBlocked = async (req: Request, res: Response) => {
+  try {
+    const { isBlocked } = req.params;
+    const result = await LocalUserServices.searchByIsBlocked(isBlocked === "true");
+    res.status(200).json({ success: true, message: "Users by isBlocked", data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to search by isBlocked" });
+  }
+};
+
+
+const searchByContactNumber = async (req: Request, res: Response) => {
+  try {
+    const { contactNumber } = req.params;
+
+    const result = await LocalUserServices.searchByContactNumber(contactNumber);
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No user found with this contact number",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved by contact number successfully",
+      data: result,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to search users by contact number",
+    });
+  }
+};
+
+const combinedLiveSearch = async (req: Request, res: Response) => {
+  try {
+    const { searchTerm } = req.params;
+    const result = await LocalUserServices.combinedLiveSearch(searchTerm);
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found matching this search",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully by live search",
+      data: result,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to perform live search",
+    });
+  }
+};
 export const LocalUserControler={
     createLocalUser,
     getLocalUserById,
     updateLocalUser,
     softDeleteLocalUser,
-    restoreLocalUser
+    restoreLocalUser,
+      searchByRole,
+  searchByStatus,
+  searchByIsDeleted,
+  searchByIsBlocked,
+  searchByContactNumber,
+  combinedLiveSearch
 }

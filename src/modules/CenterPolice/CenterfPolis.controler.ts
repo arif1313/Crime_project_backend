@@ -129,11 +129,79 @@ const liveSearchCenterPolice = async (req: Request, res: Response) => {
   }
 };
 
+// 🔹 Search by Status
+const searchByStatus = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.query;
+    if (!status) {
+      return res.status(400).json({ success: false, message: "Status is required" });
+    }
+
+    const results = await centerPoliceServices.searchByStatus(status as string);
+    res.status(200).json({ success: true, data: results });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search by status failed" });
+  }
+};
+
+// 🔹 Search by Contact Number
+const searchByContactNumber = async (req: Request, res: Response) => {
+  try {
+    const { contactNumber } = req.query;
+    if (!contactNumber) {
+      return res.status(400).json({ success: false, message: "Contact number is required" });
+    }
+
+    const results = await centerPoliceServices.searchByContactNumber(contactNumber as string);
+    res.status(200).json({ success: true, data: results });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search by contact number failed" });
+  }
+};
+
+// 🔹 Search by isBlocked
+const searchByIsBlocked = async (req: Request, res: Response) => {
+  try {
+    const { isBlocked } = req.query;
+    if (isBlocked === undefined) {
+      return res.status(400).json({ success: false, message: "isBlocked is required" });
+    }
+
+    const results = await centerPoliceServices.searchByIsBlocked(isBlocked === "true");
+    res.status(200).json({ success: true, data: results });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search by isBlocked failed" });
+  }
+};
+
+// 🔹 Search by isDeleted
+const searchByIsDeleted = async (req: Request, res: Response) => {
+  try {
+    const { isDeleted } = req.query;
+    if (isDeleted === undefined) {
+      return res.status(400).json({ success: false, message: "isDeleted is required" });
+    }
+
+    const results = await centerPoliceServices.searchByIsDeleted(isDeleted === "true");
+    res.status(200).json({ success: true, data: results });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Search by isDeleted failed" });
+  }
+};
+
 export const centerPoliceControler={
     createCenterPolice,
     updateCenterPolice,
     softDeleteCenterPolice,
     getCenterPoliceById,
     restoreCenterPolice,
-    liveSearchCenterPolice
+    liveSearchCenterPolice,
+    searchByIsDeleted,
+    searchByIsBlocked,
+    searchByContactNumber,
+    searchByStatus
 }

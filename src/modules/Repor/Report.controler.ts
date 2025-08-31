@@ -233,6 +233,41 @@ const searchReportsByStatus = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+//combine search
+const searchReportsCombine = async (req: Request, res: Response) => {
+  try {
+    const { reportType, reporterEmail, reporterContact, status } = req.query;
+
+    // at least one filter must be provided
+    if (!reportType && !reporterEmail && !reporterContact && !status) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one search filter is required",
+      });
+    }
+
+    const results = await ReportServices.searchReportsCombine({
+      reportType: reportType as string,
+      reporterEmail: reporterEmail as string,
+      reporterContact: reporterContact as string,
+      status: status as string,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Reports retrieved successfully",
+      data: results,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to search reports",
+    });
+  }
+};
 export const ReportControler={
     createReport,
     getRepotById,
@@ -243,7 +278,8 @@ export const ReportControler={
     searchReportsByType,
     searchReportByEmail,
     searchReportsByContact,
-    searchReportsByStatus
+    searchReportsByStatus,
+    searchReportsCombine
 }
 
 
