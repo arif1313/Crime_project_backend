@@ -1,9 +1,8 @@
-import mongoose, { model, Schema } from 'mongoose'
-import { ICenterPolice } from './CenterPoliceInterface'
-
+import { Schema, model } from "mongoose";
+import { ICenterPolice } from "./CenterPoliceInterface";
 const CenterPoliceSchema = new Schema<ICenterPolice>(
   {
-    userId: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     centerStationName: { type: String, required: true },
     logo: { type: String },
     contactNumber: { type: String },
@@ -14,8 +13,7 @@ const CenterPoliceSchema = new Schema<ICenterPolice>(
     isBlocked: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
   },
-  {
-    timestamps: true,
-  },
-)
-export const CenterPoliceModel = model<ICenterPolice>('CenterPolice', CenterPoliceSchema)
+  { timestamps: true }
+);
+
+export const CenterPoliceModel = model<ICenterPolice>("CenterPolice", CenterPoliceSchema);

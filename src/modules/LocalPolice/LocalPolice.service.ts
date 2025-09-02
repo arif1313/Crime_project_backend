@@ -1,11 +1,15 @@
+import { UserModel } from "../User/User.model";
 import { LocalPoliceStationModel } from "./LocalPolice.model"
 import { ILocalPoliceStation } from "./LocalPoliceInterface"
 
+const createLocalPoliceDB = async (localPolice: ILocalPoliceStation) => {
+  const result = await LocalPoliceStationModel.create(localPolice);
 
-const createLocalPoliceDB= async (localPolice:ILocalPoliceStation)=>{
-   const result= await LocalPoliceStationModel.create(localPolice)
-   return result
-}
+  // ✅ Update User role automatically
+  await UserModel.findByIdAndUpdate(localPolice.userId, { role: "localPolice" });
+
+  return result;
+};
 
 const getallLocalPoliceDB = async () => {
   const result = await LocalPoliceStationModel.find()

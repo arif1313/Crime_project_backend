@@ -1,163 +1,153 @@
 import { Request, Response } from "express";
 import { centerPoliceServices } from "./Centerpolice.service";
 
-const createCenterPolice= async(req:Request, res:Response)=>{
-
-   try{
-     const centerPoliceData=req.body.centerPolice
-    const result= await centerPoliceServices.createcenterPoliceDB(centerPoliceData)
-    res.status(200).json({
-        success:true,
-        massege:'centerPolice Create succesfully',
-        data:result
-    })
-   }catch(err){
-    console.log(err)
-
-   }
-}
-
-
-
-    const getCenterPoliceById = async (req: Request, res: Response) => {
+// 🔹 Create
+const createCenterPolice = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.query;
-
-    let result;
-    if (userId) {
-      result = await centerPoliceServices.findByCenterPoliceId(userId as string);
-    } else {
-      result = await centerPoliceServices.getalcenterPoliceDB()
-    }
-
-    res.status(200).json({
+    const result = await centerPoliceServices.createCenterPoliceDB(req.body);
+    res.status(201).json({
       success: true,
-      message: "centerPolice retrieved successfully",
+      message: "Center Police created successfully",
       data: result,
     });
-  } catch (err) {
-    console.log(err);
-   
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
+// 🔹 Get all
+const getAllCenterPolice = async (req: Request, res: Response) => {
+  try {
+    const result = await centerPoliceServices.getAllCenterPoliceDB();
+    res.status(200).json({
+      success: true,
+      message: "All Center Police fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 🔹 Get by userId
+const getCenterPoliceByUserId = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const result = await centerPoliceServices.findByCenterPoliceId(userId);
+    if (!result) {
+      return res.status(404).json({ success: false, message: "Not found" });
+    }
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 🔹 Update
 const updateCenterPolice = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const updateData = req.body;
-
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "Center police ID is required" });
+    const result = await centerPoliceServices.updateCenterPoliceById(
+      userId,
+      req.body
+    );
+    if (!result) {
+      return res.status(404).json({ success: false, message: "Not found" });
     }
-
-    const updatedCenterPolice = await centerPoliceServices.updateCenterpoliceById(userId, updateData);
-
-    if (!updatedCenterPolice) {
-      return res.status(404).json({ success: false, message: "Center police not found" });
-    }
-
     res.status(200).json({
       success: true,
       message: "Center Police updated successfully",
-      data: updatedCenterPolice,
+      data: result,
     });
-  } catch (err) {
-   console.log(err)
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// 🔹 Soft delete
 const softDeleteCenterPolice = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-
-    const deletedUser = await centerPoliceServices.softdeletecenterPoliceById(userId);
-
-    if (!deletedUser) {
-      return res.status(404).json({ success: false, message: "centerPolice not found" });
-    }
-
+    const result = await centerPoliceServices.softDeleteCenterPoliceById(userId);
     res.status(200).json({
       success: true,
-      message: "centerPolice soft deleted successfully",
-      data: deletedUser,
+      message: "Soft deleted successfully",
+      data: result,
     });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Failed to soft delete centerPolice" });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Restore
+// 🔹 Restore
 const restoreCenterPolice = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-
-    const restoredUser = await centerPoliceServices.restorecenterPoliceById(userId);
-
-    if (!restoredUser) {
-      return res.status(404).json({ success: false, message: "centerPolice not found" });
-    }
-
+    const result = await centerPoliceServices.restoreCenterPoliceById(userId);
     res.status(200).json({
       success: true,
-      message: "centerPolice restored successfully",
-      data: restoredUser,
+      message: "Restored successfully",
+      data: result,
     });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Failed to restore centerPolice" });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
+// 🔹 Live search
 const liveSearchCenterPolice = async (req: Request, res: Response) => {
   try {
-    const { q } = req.query;
-
-    if (!q || q.toString().trim() === "") {
-      return res.status(200).json({ success: true, data: [] });
-    }
-
-    const results = await centerPoliceServices.liveSearchCenterPolice(q as string);
-
-    res.status(200).json({
-      success: true,
-      message: "Search results",
-      data: results,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Search failed" });
+    const { query } = req.query;
+    const result = await centerPoliceServices.liveSearchCenterPolice(
+      query as string
+    );
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 🔹 Search by Status
+// 🔹 Search by status
 const searchByStatus = async (req: Request, res: Response) => {
   try {
     const { status } = req.query;
-    if (!status) {
-      return res.status(400).json({ success: false, message: "Status is required" });
-    }
-
-    const results = await centerPoliceServices.searchByStatus(status as string);
-    res.status(200).json({ success: true, data: results });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Search by status failed" });
+    const result = await centerPoliceServices.searchByStatus(status as string);
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 🔹 Search by Contact Number
-const searchByContactNumber = async (req: Request, res: Response) => {
+// 🔹 Search by email
+const searchByEmail = async (req: Request, res: Response) => {
   try {
-    const { contactNumber } = req.query;
-    if (!contactNumber) {
-      return res.status(400).json({ success: false, message: "Contact number is required" });
-    }
+    const { email } = req.query;
+    const result = await centerPoliceServices.searchByEmail(email as string);
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
-    const results = await centerPoliceServices.searchByContactNumber(contactNumber as string);
-    res.status(200).json({ success: true, data: results });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Search by contact number failed" });
+// 🔹 Search by _id
+const searchById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await centerPoliceServices.searchById(id);
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 🔹 Search by userId
+const searchByUserId = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.query;
+    const result = await centerPoliceServices.searchByUserId(userId as string);
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -165,15 +155,12 @@ const searchByContactNumber = async (req: Request, res: Response) => {
 const searchByIsBlocked = async (req: Request, res: Response) => {
   try {
     const { isBlocked } = req.query;
-    if (isBlocked === undefined) {
-      return res.status(400).json({ success: false, message: "isBlocked is required" });
-    }
-
-    const results = await centerPoliceServices.searchByIsBlocked(isBlocked === "true");
-    res.status(200).json({ success: true, data: results });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Search by isBlocked failed" });
+    const result = await centerPoliceServices.searchByIsBlocked(
+      isBlocked === "true"
+    );
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -181,27 +168,29 @@ const searchByIsBlocked = async (req: Request, res: Response) => {
 const searchByIsDeleted = async (req: Request, res: Response) => {
   try {
     const { isDeleted } = req.query;
-    if (isDeleted === undefined) {
-      return res.status(400).json({ success: false, message: "isDeleted is required" });
-    }
-
-    const results = await centerPoliceServices.searchByIsDeleted(isDeleted === "true");
-    res.status(200).json({ success: true, data: results });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Search by isDeleted failed" });
+    const result = await centerPoliceServices.searchByIsDeleted(
+      isDeleted === "true"
+    );
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
+
+
 export const centerPoliceControler={
-    createCenterPolice,
-    updateCenterPolice,
-    softDeleteCenterPolice,
-    getCenterPoliceById,
-    restoreCenterPolice,
-    liveSearchCenterPolice,
-    searchByIsDeleted,
-    searchByIsBlocked,
-    searchByContactNumber,
-    searchByStatus
+     createCenterPolice,
+  getAllCenterPolice,
+  getCenterPoliceByUserId,
+  updateCenterPolice,
+  softDeleteCenterPolice,
+  restoreCenterPolice,
+  liveSearchCenterPolice,
+  searchByStatus,
+  searchByEmail,
+  searchById,
+  searchByUserId,
+  searchByIsBlocked,
+  searchByIsDeleted,
 }

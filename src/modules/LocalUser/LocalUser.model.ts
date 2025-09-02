@@ -1,15 +1,15 @@
-import mongoose, { model, Schema } from 'mongoose'
-import { ILocalUser } from './LocalUser.Interface'
+
+import { Schema, model, Types } from "mongoose";
+import { ILocalUser } from "./LocalUser.Interface";
 
 const LocalUserSchema = new Schema<ILocalUser>(
   {
-    userId: { type: String, required: true },
-    role: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     firstName: { type: String, required: true },
     middleName: { type: String },
     lastName: { type: String, required: true },
     profileImage: { type: String },
-    gender: { type: String, enum: ['male', 'female', 'other'] },
+    gender: { type: String, enum: ["male", "female", "other"] },
     age: { type: Number },
     dateOfBirth: { type: Date },
     contactNumber: { type: String },
@@ -21,8 +21,7 @@ const LocalUserSchema = new Schema<ILocalUser>(
     isBlocked: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
   },
-  {
-    timestamps: true, // adds createdAt and updatedAt automatically
-  },
-)
-export const LocalUserModel = model<ILocalUser>('LocalUser', LocalUserSchema)
+  { timestamps: true }
+);
+
+export const LocalUserModel = model<ILocalUser>("LocalUser", LocalUserSchema);

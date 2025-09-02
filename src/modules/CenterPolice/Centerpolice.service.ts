@@ -1,28 +1,75 @@
-import { CenterPoliceModel } from "./CenterPolice.model"
-import { ICenterPolice } from "./CenterPoliceInterface"
+import { UserModel } from "../User/User.model";
+import { IUser } from "../User/UserInterface";
+import { CenterPoliceModel } from "./CenterPolice.model";
+import { ICenterPolice } from "./CenterPoliceInterface";
 
-const createcenterPoliceDB= async (CenterPolice:ICenterPolice)=>{
-   const result= await CenterPoliceModel.create(CenterPolice)
-   return result
-}
 
-const getalcenterPoliceDB = async () => {
-  const result = await CenterPoliceModel.find()
-  return result
-}
-const findByCenterPoliceId = async (id: string) => {
-  return await CenterPoliceModel.findOne({ userId: id }); 
+
+// Create CenterPolice + link User
+const createCenterPoliceWithUser = async (centerPoliceData: any) => {
+  const { email, name, password, contactNumber, centerStationName, ...rest } = centerPoliceData;
+
+  // 1️⃣ Check if user exists
+  let user = await UserModel.findOne({ email });
+
+  // 2️⃣ Create user if not exists
+  if (!user) {
+    const newUser: IUser = {
+      name,
+      email,
+      password,       // You should hash password in real app
+      contactNumber,
+    } as IUser;
+
+    user = await UserModel.create(newUser);
+  }
+
+  // 3️⃣ Create CenterPolice linked to user
+  const centerPolice: ICenterPolice = {
+    userId: user._id,
+    centerStationName,
+    ...rest,
+  } as ICenterPolice;
+
+  const result = await CenterPoliceModel.create(centerPolice);
+  return await result.populate("userId", "name email contactNumber");
 };
-const updateCenterpoliceById = async (userId: string, updateData: Partial<ICenterPolice>) => {
+
+
+
+
+// 🔹 Create
+const createCenterPoliceDB = async (centerPolice: ICenterPolice) => {
+  const result = await CenterPoliceModel.create(centerPolice);
+  return result;
+};
+
+// 🔹 Get all
+const getAllCenterPoliceDB = async () => {
+  const result = await CenterPoliceModel.find({ isDeleted: false });
+  return result;
+};
+
+// 🔹 Find by userId
+const findByCenterPoliceId = async (userId: string) => {
+  return await CenterPoliceModel.findOne({ userId, isDeleted: false });
+};
+
+// 🔹 Update by userId
+const updateCenterPoliceById = async (
+  userId: string,
+  updateData: Partial<ICenterPolice>
+) => {
   const result = await CenterPoliceModel.findOneAndUpdate(
-    {  userId, isDeleted: false },        
-    updateData,          
-    { new: true }         
+    { userId, isDeleted: false },
+    updateData,
+    { new: true }
   );
   return result;
 };
-// Soft delete
-const softdeletecenterPoliceById = async (userId: string) => {
+
+// 🔹 Soft delete
+const softDeleteCenterPoliceById = async (userId: string) => {
   return await CenterPoliceModel.findOneAndUpdate(
     { userId },
     { isDeleted: true },
@@ -30,8 +77,8 @@ const softdeletecenterPoliceById = async (userId: string) => {
   );
 };
 
-// Restore
-const restorecenterPoliceById = async (userId: string) => {
+// 🔹 Restore
+const restoreCenterPoliceById = async (userId: string) => {
   return await CenterPoliceModel.findOneAndUpdate(
     { userId },
     { isDeleted: false },
@@ -39,23 +86,38 @@ const restorecenterPoliceById = async (userId: string) => {
   );
 };
 
+// 🔹 Live search (centerStationName & centerStationAddress)
 const liveSearchCenterPolice = async (query: string) => {
   return await CenterPoliceModel.find({
     $or: [
       { centerStationName: { $regex: query, $options: "i" } },
-      { centerStationAddress: { $regex: query, $options: "i" } }
+      { centerStationAddress: { $regex: query, $options: "i" } },
     ],
-    isDeleted: false
-  }).limit(10); // Limit results for performance
-};
-// 🔹 Search by Status
-const searchByStatus = async (status: string) => {
-  return await CenterPoliceModel.find({ status });
+    isDeleted: false,
+  }).limit(10);
 };
 
-// 🔹 Search by Contact Number
-const searchByContactNumber = async (contactNumber: string) => {
-  return await CenterPoliceModel.find({ contactNumber });
+// 🔹 Search by Status
+const searchByStatus = async (status: string) => {
+  return await CenterPoliceModel.find({ status, isDeleted: false });
+};
+
+// 🔹 Search by Email (through populate of User)
+const searchByEmail = async (email: string) => {
+  return await CenterPoliceModel.find({ isDeleted: false }).populate({
+    path: "userId",
+    match: { email },
+  });
+};
+
+// 🔹 Search by _id
+const searchById = async (_id: string) => {
+  return await CenterPoliceModel.findOne({ _id, isDeleted: false });
+};
+
+// 🔹 Search by userId
+const searchByUserId = async (userId: string) => {
+  return await CenterPoliceModel.findOne({ userId, isDeleted: false });
 };
 
 // 🔹 Search by isBlocked
@@ -67,17 +129,19 @@ const searchByIsBlocked = async (isBlocked: boolean) => {
 const searchByIsDeleted = async (isDeleted: boolean) => {
   return await CenterPoliceModel.find({ isDeleted });
 };
-export const centerPoliceServices={
-   createcenterPoliceDB ,
-   softdeletecenterPoliceById,
-   updateCenterpoliceById,
-   findByCenterPoliceId,
-   getalcenterPoliceDB,
-   restorecenterPoliceById,
-   liveSearchCenterPolice,
-   searchByIsDeleted,
-   searchByIsBlocked,
-   searchByContactNumber,
-   searchByStatus,
 
-}
+export const centerPoliceServices = {
+  createCenterPoliceDB,
+  getAllCenterPoliceDB,
+  findByCenterPoliceId,
+  updateCenterPoliceById,
+  softDeleteCenterPoliceById,
+  restoreCenterPoliceById,
+  liveSearchCenterPolice,
+  searchByStatus,
+  searchByEmail,
+  searchById,
+  searchByUserId,
+  searchByIsBlocked,
+  searchByIsDeleted,
+};

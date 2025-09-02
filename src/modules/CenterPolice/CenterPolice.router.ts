@@ -2,14 +2,14 @@ import express from "express"
 import { centerPoliceControler } from "./CenterfPolis.controler"
 const router= express.Router()
 router.post('/create-centerPolice',centerPoliceControler.createCenterPolice)
-router.get('/',centerPoliceControler.getCenterPoliceById)
+// router.get('/',centerPoliceControler.getCenterPoliceById)
 router.put("/update/:userId", centerPoliceControler.updateCenterPolice);
 router.delete('/delete/:userId', centerPoliceControler.softDeleteCenterPolice);
 router.patch("/restore/:userId", centerPoliceControler.restoreCenterPolice);
 router.get("/search", centerPoliceControler.liveSearchCenterPolice);
 
 router.get("/search/status", centerPoliceControler.searchByStatus);
-router.get("/search/contact", centerPoliceControler.searchByContactNumber);
+// router.get("/search/contact", centerPoliceControler.searchByContactNumber);
 router.get("/search/isBlocked", centerPoliceControler.searchByIsBlocked);
 router.get("/search/isDeleted", centerPoliceControler.searchByIsDeleted);
 export const centerPoliceRoutes=router
