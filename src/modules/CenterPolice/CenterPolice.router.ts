@@ -1,18 +1,23 @@
-import express from "express"
-import { centerPoliceControler } from "./CenterfPolis.controler"
-const router= express.Router()
-router.post('/create-centerPolice',centerPoliceControler.createCenterPolice)
-// router.get('/',centerPoliceControler.getCenterPoliceById)
-router.put("/update/:userId", centerPoliceControler.updateCenterPolice);
-router.delete('/delete/:userId', centerPoliceControler.softDeleteCenterPolice);
-router.patch("/restore/:userId", centerPoliceControler.restoreCenterPolice);
-router.get("/search", centerPoliceControler.liveSearchCenterPolice);
+// src/modules/CenterPolice/CenterPolice.routes.ts
+import { Router } from "express";
+import { CenterPoliceControllers } from "./CenterfPolis.controler";
 
-router.get("/search/status", centerPoliceControler.searchByStatus);
-// router.get("/search/contact", centerPoliceControler.searchByContactNumber);
-router.get("/search/isBlocked", centerPoliceControler.searchByIsBlocked);
-router.get("/search/isDeleted", centerPoliceControler.searchByIsDeleted);
-export const centerPoliceRoutes=router
+
+const router = Router();
+router.get("/search/live", CenterPoliceControllers.liveSearchCenterPoliceController);
+router.get("/search/deleted", CenterPoliceControllers.searchCenterPoliceByDeletedController); // ✅
+router.get("/search/blocked", CenterPoliceControllers.searchCenterPoliceByBlockedController); // ✅
+router.post("/create", CenterPoliceControllers.createCenterPoliceController);
+router.get("/search", CenterPoliceControllers.getAllCenterPoliceController);
+router.get("/search/:id", CenterPoliceControllers.getCenterPoliceController);
+router.put("/update/:id", CenterPoliceControllers.updateCenterPoliceController);
+router.delete("/delete/:id", CenterPoliceControllers.softDeleteCenterPoliceController);
+router.patch("/restore/:id", CenterPoliceControllers.restoreCenterPoliceController);
+router.patch("/block/:id", CenterPoliceControllers.blockCenterPoliceController);
+router.patch("/unblock/:id", CenterPoliceControllers.unblockCenterPoliceController);
+
+export const CenterPoliceRoutes = router;
+
 // fonted
 // import { useState } from "react";
 

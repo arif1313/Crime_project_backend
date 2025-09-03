@@ -1,6 +1,8 @@
+// src/modules/CenterPolice/CenterPoliceInterface.ts
 import { Types } from "mongoose";
 
 export type ICenterPolice = {
+  id?: string;
   userId: Types.ObjectId;   // ✅ Reference to User
   centerStationName: string;
   logo?: string;
@@ -11,4 +13,6 @@ export type ICenterPolice = {
   status?: string;
   isBlocked: boolean;
   isDeleted: boolean;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 };

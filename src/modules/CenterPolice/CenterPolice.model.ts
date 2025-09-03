@@ -1,5 +1,7 @@
+// src/modules/CenterPolice/CenterPolice.model.ts
 import { Schema, model } from "mongoose";
 import { ICenterPolice } from "./CenterPoliceInterface";
+
 const CenterPoliceSchema = new Schema<ICenterPolice>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -16,4 +18,7 @@ const CenterPoliceSchema = new Schema<ICenterPolice>(
   { timestamps: true }
 );
 
-export const CenterPoliceModel = model<ICenterPolice>("CenterPolice", CenterPoliceSchema);
+export const CenterPoliceModel = model<ICenterPolice>(
+  "CenterPolice",
+  CenterPoliceSchema
+);

@@ -1,196 +1,192 @@
+// src/modules/CenterPolice/CenterPolice.controller.ts
 import { Request, Response } from "express";
-import { centerPoliceServices } from "./Centerpolice.service";
+import { createCenterPoliceValidation, updateCenterPoliceValidation } from "./CenterPolice.validation";
+import { CenterPoliceServices } from "./Centerpolice.service";
 
-// 🔹 Create
-const createCenterPolice = async (req: Request, res: Response) => {
-  try {
-    const result = await centerPoliceServices.createCenterPoliceDB(req.body);
-    res.status(201).json({
-      success: true,
-      message: "Center Police created successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 
-// 🔹 Get all
-const getAllCenterPolice = async (req: Request, res: Response) => {
+// ✅ Create
+const createCenterPoliceController = async (req: Request, res: Response) => {
   try {
-    const result = await centerPoliceServices.getAllCenterPoliceDB();
-    res.status(200).json({
-      success: true,
-      message: "All Center Police fetched successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Get by userId
-const getCenterPoliceByUserId = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const result = await centerPoliceServices.findByCenterPoliceId(userId);
-    if (!result) {
-      return res.status(404).json({ success: false, message: "Not found" });
+    const { error, value } = createCenterPoliceValidation.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        details: error.details.map((d) => d.message),
+      });
     }
-    res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+
+    const result = await CenterPoliceServices.createCenterPoliceDB(value);
+    res.status(201).json({ success: true, message: "Center police created", data: result });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// 🔹 Update
-const updateCenterPolice = async (req: Request, res: Response) => {
+// ✅ Get All
+const getAllCenterPoliceController = async (_req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    const result = await centerPoliceServices.updateCenterPoliceById(
-      userId,
-      req.body
-    );
-    if (!result) {
-      return res.status(404).json({ success: false, message: "Not found" });
+    const results = await CenterPoliceServices.getAllCenterPolice();
+    res.status(200).json({ success: true, data: results });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ✅ Get By ID
+const getCenterPoliceController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const result = await CenterPoliceServices.getCenterPoliceById(id);
+    if (!result) return res.status(404).json({ success: false, message: "Not found" });
+    res.status(200).json({ success: true, data: result });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ✅ Update
+const updateCenterPoliceController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const { error, value } = updateCenterPoliceValidation.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        details: error.details.map((d) => d.message),
+      });
     }
+
+    const updated = await CenterPoliceServices.updateCenterPoliceById(id, value);
+    if (!updated) return res.status(404).json({ success: false, message: "Not found" });
+
+    res.status(200).json({ success: true, message: "Updated", data: updated });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ✅ Soft Delete
+const softDeleteCenterPoliceController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const deleted = await CenterPoliceServices.softDeleteCenterPoliceById(id);
+    if (!deleted) return res.status(404).json({ success: false, message: "Not found" });
+
+    res.status(200).json({ success: true, message: "Soft deleted", data: deleted });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ✅ Restore
+const restoreCenterPoliceController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const restored = await CenterPoliceServices.restoreCenterPoliceById(id);
+    if (!restored) return res.status(404).json({ success: false, message: "Not found" });
+
+    res.status(200).json({ success: true, message: "Restored", data: restored });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ✅ Block
+const blockCenterPoliceController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const blocked = await CenterPoliceServices.blockCenterPoliceById(id);
+    if (!blocked) return res.status(404).json({ success: false, message: "Not found" });
+
+    res.status(200).json({ success: true, message: "Blocked", data: blocked });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ✅ Unblock
+const unblockCenterPoliceController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const unblocked = await CenterPoliceServices.unblockCenterPoliceById(id);
+    if (!unblocked) return res.status(404).json({ success: false, message: "Not found" });
+
+    res.status(200).json({ success: true, message: "Unblocked", data: unblocked });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+// ✅ Live Search Controller
+const liveSearchCenterPoliceController = async (req: Request, res: Response) => {
+  try {
+    const { keyword } = req.query;
+    if (!keyword) {
+      return res.status(400).json({
+        success: false,
+        message: "Keyword is required",
+      });
+    }
+
+    const results = await CenterPoliceServices.liveSearchCenterPolice(keyword as string);
     res.status(200).json({
       success: true,
-      message: "Center Police updated successfully",
-      data: result,
+      count: results.length,
+      data: results,
     });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// 🔹 Soft delete
-const softDeleteCenterPolice = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const result = await centerPoliceServices.softDeleteCenterPoliceById(userId);
-    res.status(200).json({
-      success: true,
-      message: "Soft deleted successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Restore
-const restoreCenterPolice = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const result = await centerPoliceServices.restoreCenterPoliceById(userId);
-    res.status(200).json({
-      success: true,
-      message: "Restored successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Live search
-const liveSearchCenterPolice = async (req: Request, res: Response) => {
-  try {
-    const { query } = req.query;
-    const result = await centerPoliceServices.liveSearchCenterPolice(
-      query as string
-    );
-    res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Search by status
-const searchByStatus = async (req: Request, res: Response) => {
-  try {
-    const { status } = req.query;
-    const result = await centerPoliceServices.searchByStatus(status as string);
-    res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Search by email
-const searchByEmail = async (req: Request, res: Response) => {
-  try {
-    const { email } = req.query;
-    const result = await centerPoliceServices.searchByEmail(email as string);
-    res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Search by _id
-const searchById = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const result = await centerPoliceServices.searchById(id);
-    res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Search by userId
-const searchByUserId = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.query;
-    const result = await centerPoliceServices.searchByUserId(userId as string);
-    res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Search by isBlocked
-const searchByIsBlocked = async (req: Request, res: Response) => {
-  try {
-    const { isBlocked } = req.query;
-    const result = await centerPoliceServices.searchByIsBlocked(
-      isBlocked === "true"
-    );
-    res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// 🔹 Search by isDeleted
-const searchByIsDeleted = async (req: Request, res: Response) => {
+// ✅ Search by isDeleted
+const searchCenterPoliceByDeletedController = async (req: Request, res: Response) => {
   try {
     const { isDeleted } = req.query;
-    const result = await centerPoliceServices.searchByIsDeleted(
-      isDeleted === "true"
-    );
-    res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    if (isDeleted === undefined) {
+      return res.status(400).json({ success: false, message: "isDeleted is required (true/false)" });
+    }
+
+    const results = await CenterPoliceServices.searchCenterPoliceByDeleted(isDeleted === "true");
+    res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
+// ✅ Search by isBlocked
+const searchCenterPoliceByBlockedController = async (req: Request, res: Response) => {
+  try {
+    const { isBlocked } = req.query;
+    if (isBlocked === undefined) {
+      return res.status(400).json({ success: false, message: "isBlocked is required (true/false)" });
+    }
 
-
-export const centerPoliceControler={
-     createCenterPolice,
-  getAllCenterPolice,
-  getCenterPoliceByUserId,
-  updateCenterPolice,
-  softDeleteCenterPolice,
-  restoreCenterPolice,
-  liveSearchCenterPolice,
-  searchByStatus,
-  searchByEmail,
-  searchById,
-  searchByUserId,
-  searchByIsBlocked,
-  searchByIsDeleted,
-}
+    const results = await CenterPoliceServices.searchCenterPoliceByBlocked(isBlocked === "true");
+    res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+export const CenterPoliceControllers = {
+  createCenterPoliceController,
+  getAllCenterPoliceController,
+  getCenterPoliceController,
+  updateCenterPoliceController,
+  softDeleteCenterPoliceController,
+  restoreCenterPoliceController,
+  blockCenterPoliceController,
+  unblockCenterPoliceController,
+  liveSearchCenterPoliceController,
+  searchCenterPoliceByDeletedController,
+  searchCenterPoliceByBlockedController
+};
