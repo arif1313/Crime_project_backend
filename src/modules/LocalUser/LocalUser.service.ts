@@ -1,102 +1,102 @@
-import { ILocalUser } from "./LocalUser.Interface"
-import { LocalUserModel } from "./LocalUser.model"
+import { Types } from "mongoose";
+import { LocalUserModel, } from "./LocalUser.model";
+import { IUserResponse, UserService } from "../User/user.service";
+import { ILocalUser } from "./LocalUser.Interface";
 
-
-
-
-
-
-
-
-const createLocalUserDB= async (LocalUser:ILocalUser)=>{
-   const result= await LocalUserModel.create(LocalUser)
-   return result
-}
-const getallLocalUserDB = async () => {
-  const result = await LocalUserModel.find()
-  return result
-}
-const findByLocalUserId = async (id: string) => {
-  return await LocalUserModel.findOne({ userId: id });
-};
-const updateLocalUserById = async (userId: string, updateData: Partial<ILocalUser>) => {
-  const result = await LocalUserModel.findOneAndUpdate(
-    { userId },        
-    updateData,          
-    { new: true }         
-  );
-  return result;
-};
-const softDeleteLocalUserById = async (userId: string) => {
-  const result = await LocalUserModel.findOneAndUpdate(
-    { userId },
-    { isDeleted: true },
-    { new: true }
-  );
-  return result;
-
-
-};
- 
-
-
-// Restore soft-deleted user (optional)
-const restoreLocalUserById = async (userId: string) => {
-  const result = await LocalUserModel.findOneAndUpdate(
-    { userId },
-    { isDeleted: false },
-    { new: true }
-  );
-  return result;
+// Type for return
+export type ILocalUserResponse = {
+  user: IUserResponse;  // password removed
+  localUser: ILocalUser;
 };
 
-// Search by role
-const searchByRole = async (role: string) => {
-  return await LocalUserModel.find({ role });
-};
-// Search by status
-const searchByStatus = async (status: string) => {
-  return await LocalUserModel.find({ status });
-};
-// Search by isDeleted
-const searchByIsDeleted = async (isDeleted: boolean) => {
-  return await LocalUserModel.find({ isDeleted });
-};
-// Search by isBlocked
-const searchByIsBlocked = async (isBlocked: boolean) => {
-  return await LocalUserModel.find({ isBlocked });
-};
+// Input type: userId optional
+export type CreateLocalUserInput = Omit<ILocalUser, "userId"> & Partial<IUserResponse> & { userId?: string };
 
-const searchByContactNumber = async (contactNumber: string) => {
-  const result = await LocalUserModel.find({ contactNumber: contactNumber });
-  return result;
-};
+ const createLocalUserDB = async (
+  localData: CreateLocalUserInput
+): Promise<ILocalUserResponse> => {
+  let userId: string;
+  let user: IUserResponse;
 
-// Combined Live Search (Name + Location)
-const combinedLiveSearch = async (searchTerm: string) => {
-  const result = await LocalUserModel.find({
-    $or: [
-      { firstName: { $regex: searchTerm, $options: "i" } },
-      { middleName: { $regex: searchTerm, $options: "i" } },
-      { lastName: { $regex: searchTerm, $options: "i" } },
-      { currentLocation: { $regex: searchTerm, $options: "i" } },
-    ],
+  if (localData.userId) {
+    const foundUser = await UserService.findUserById(localData.userId);
+    if (!foundUser) throw new Error("User not found for given userId");
+    userId = foundUser._id!;
+    user = foundUser;
+  } else {
+    const existingUser = await UserService.getAllUsersDB();
+    const foundUser = existingUser.find(u => u.email === localData.email);
+
+    if (foundUser) {
+      userId = foundUser._id!;
+      user = foundUser;
+    } else {
+      const newUser = await UserService.createUserDB({
+        name: localData.firstName + " " + (localData.lastName || ""),
+        email: localData.email || "",
+        contactNumber: localData.contactNumber || "",
+        password: "default123",
+        role: "localUser",
+      });
+      userId = newUser._id!;
+      user = newUser;
+    }
+  }
+
+  // ✅ Create LocalUser
+  const localUser = new LocalUserModel({
+    ...localData,
+    userId: new Types.ObjectId(userId),
   });
-  return result;
+
+  const savedLocalUser = await localUser.save();
+
+  return {
+    user,  // ensure this is not null
+    localUser: savedLocalUser.toObject(),
+  };
+};
+// ✅ Get all LocalUsers (excluding soft-deleted)
+const getAllLocalUsers = async (): Promise<ILocalUser[]> => {
+  const localUsers = await LocalUserModel.find({ isDeleted: false });
+  return localUsers.map(u => u.toObject());
 };
 
-export const LocalUserServices={
-   createLocalUserDB ,
-   getallLocalUserDB,
-   findByLocalUserId,
-   updateLocalUserById,
-   softDeleteLocalUserById,
-   restoreLocalUserById,
-     searchByRole,
-  searchByStatus,
-  searchByIsDeleted,
-  searchByIsBlocked,
-  searchByContactNumber,
-  combinedLiveSearch
+// Other CRUD operations
+const getLocalUserById = async (id: string): Promise<ILocalUser | null> => {
+  const localUser = await LocalUserModel.findById(id);
+  return localUser ? localUser.toObject() : null;
+};
 
-}
+// ✅ Update LocalUser by ID
+const updateLocalUserById = async (id: string, data: Partial<ILocalUser>): Promise<ILocalUser | null> => {
+  const updated = await LocalUserModel.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+  return updated ? updated.toObject() : null;
+};
+const softDeleteLocalUserById = async (id: string): Promise<ILocalUser | null> => {
+  const localUser = await LocalUserModel.findById(id);
+  if (!localUser) return null;
+
+  // Already deleted
+  if (localUser.isDeleted) return localUser.toObject();
+
+  localUser.isDeleted = true;
+  await localUser.save();
+
+  return localUser.toObject();
+};
+
+const restoreLocalUserById = async (id: string): Promise<ILocalUser | null> => {
+  const restored = await LocalUserModel.findByIdAndUpdate(id, { isDeleted: false }, { new: true });
+  return restored ? restored.toObject() : null;
+};
+
+// Export all methods as object
+export const LocalUserServices = {
+  createLocalUserDB,
+  getLocalUserById,
+  updateLocalUserById,
+  softDeleteLocalUserById,
+  restoreLocalUserById,
+  getAllLocalUsers
+};

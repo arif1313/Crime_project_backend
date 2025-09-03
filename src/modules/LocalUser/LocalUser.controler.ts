@@ -1,99 +1,120 @@
 import { Request, Response } from "express";
 import { LocalUserServices } from "./LocalUser.service";
-const createLocalUser= async(req:Request, res:Response)=>{
-
-   try{
-   const localUserData = req.body.localuser;;
-    const result= await LocalUserServices.createLocalUserDB(localUserData)
-    res.status(200).json({
-        success:true,
-        massege:'localUser Create succesfully',
-        data:result
-    })
-   }catch(err){
-    console.log(err)
-
-   }
-}
+import { createLocalUserValidation, updateLocalUserValidation } from "./localUser.validation";
 
 
-
-    const getLocalUserById = async (req: Request, res: Response) => {
+const createLocalUserController = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.query;
-
-    let result;
-    if (userId) {
-      result = await LocalUserServices.findByLocalUserId(userId as string);
-    } else {
-      result = await LocalUserServices.getallLocalUserDB();
+    const { error, value } = createLocalUserValidation.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({ success: false, message: "Validation error", details: error.details.map(d => d.message) });
     }
 
-    res.status(200).json({
+    const result = await LocalUserServices.createLocalUserDB(value);
+
+    res.status(201).json({
       success: true,
-      message: "Localuser retrieved successfully",
-      data: result,
+      message: "Local user created successfully",
+      data: result,  // user & localUser properly included
     });
-  } catch (err) {
-    console.log(err);
-   
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+// ✅ Get All LocalUsers
+const getAllLocalUsersController = async (_req: Request, res: Response) => {
+  try {
+    const localUsers = await LocalUserServices.getAllLocalUsers();
+    res.status(200).json({ success: true, data: localUsers });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-const updateLocalUser = async (req: Request, res: Response) => {
+
+// ✅ Get LocalUser by ID
+const getLocalUserController = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    const updateData = req.body;
+    const id = req.params.id;
+    const localUser = await LocalUserServices.getLocalUserById(id);
+    if (!localUser) return res.status(404).json({ success: false, message: "Local user not found" });
 
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "localuser ID is required" });
-    }
-
-    const updatedlocaluser = await LocalUserServices.updateLocalUserById(userId, updateData);
-
-    if (!updatedlocaluser) {
-      return res.status(404).json({ success: false, message: "localuser not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "localuser updated successfully",
-      data: updatedlocaluser,
-    });
-  } catch (err) {
-   console.log(err)
+    res.status(200).json({ success: true, data: localUser });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
-const softDeleteLocalUser = async (req: Request, res: Response) => {
+
+
+const updateLocalUserController = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const id = req.params.id;
 
-    const deletedUser = await LocalUserServices.softDeleteLocalUserById(userId);
+    // Validate with optional fields
+    const { error, value } = updateLocalUserValidation.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        details: error.details.map(d => d.message),
+      });
+    }
 
-    if (!deletedUser) {
+    const updatedLocalUser = await LocalUserServices.updateLocalUserById(id, value);
+
+    if (!updatedLocalUser) {
       return res.status(404).json({ success: false, message: "Local user not found" });
     }
 
     res.status(200).json({
       success: true,
-      message: "Local user soft deleted successfully",
-      data: deletedUser,
+      message: "Local user updated successfully",
+      data: updatedLocalUser,
     });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Failed to soft delete local user" });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// Restore
-const restoreLocalUser = async (req: Request, res: Response) => {
+const softDeleteLocalUserController = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const id = req.params.id;
 
-    const restoredUser = await LocalUserServices.restoreLocalUserById(userId);
+    const deletedLocalUser = await LocalUserServices.softDeleteLocalUserById(id);
+
+    if (!deletedLocalUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Local user not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Local user soft-deleted successfully",
+      data: deletedLocalUser,
+    });
+
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+
+const restoreLocalUserController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+
+    const restoredUser = await LocalUserServices.restoreLocalUserById(id);
 
     if (!restoredUser) {
-      return res.status(404).json({ success: false, message: "Local user not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Local user not found",
+      });
     }
 
     res.status(200).json({
@@ -101,117 +122,24 @@ const restoreLocalUser = async (req: Request, res: Response) => {
       message: "Local user restored successfully",
       data: restoredUser,
     });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Failed to restore local user" });
-  }
-};
 
-
-
-const searchByRole = async (req: Request, res: Response) => {
-  try {
-    const { role } = req.params;
-    const result = await LocalUserServices.searchByRole(role);
-    res.status(200).json({ success: true, message: "Users by role", data: result });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to search by role" });
-  }
-};
-
-const searchByStatus = async (req: Request, res: Response) => {
-  try {
-    const { status } = req.params;
-    const result = await LocalUserServices.searchByStatus(status);
-    res.status(200).json({ success: true, message: "Users by status", data: result });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to search by status" });
-  }
-};
-
-const searchByIsDeleted = async (req: Request, res: Response) => {
-  try {
-    const { isDeleted } = req.params;
-    const result = await LocalUserServices.searchByIsDeleted(isDeleted === "true");
-    res.status(200).json({ success: true, message: "Users by isDeleted", data: result });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to search by isDeleted" });
-  }
-};
-
-const searchByIsBlocked = async (req: Request, res: Response) => {
-  try {
-    const { isBlocked } = req.params;
-    const result = await LocalUserServices.searchByIsBlocked(isBlocked === "true");
-    res.status(200).json({ success: true, message: "Users by isBlocked", data: result });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to search by isBlocked" });
-  }
-};
-
-
-const searchByContactNumber = async (req: Request, res: Response) => {
-  try {
-    const { contactNumber } = req.params;
-
-    const result = await LocalUserServices.searchByContactNumber(contactNumber);
-
-    if (!result || result.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No user found with this contact number",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Users retrieved by contact number successfully",
-      data: result,
-    });
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: "Failed to search users by contact number",
+      message: err.message,
     });
   }
 };
 
-const combinedLiveSearch = async (req: Request, res: Response) => {
-  try {
-    const { searchTerm } = req.params;
-    const result = await LocalUserServices.combinedLiveSearch(searchTerm);
+export { restoreLocalUserController };
 
-    if (!result || result.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No users found matching this search",
-      });
-    }
 
-    res.status(200).json({
-      success: true,
-      message: "Users retrieved successfully by live search",
-      data: result,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to perform live search",
-    });
-  }
+// Export all controller methods as object
+export const LocalUserControllers = {
+  createLocalUserController,
+  getLocalUserController,
+  updateLocalUserController,
+  softDeleteLocalUserController,
+  restoreLocalUserController,
+  getAllLocalUsersController
 };
-export const LocalUserControler={
-    createLocalUser,
-    getLocalUserById,
-    updateLocalUser,
-    softDeleteLocalUser,
-    restoreLocalUser,
-      searchByRole,
-  searchByStatus,
-  searchByIsDeleted,
-  searchByIsBlocked,
-  searchByContactNumber,
-  combinedLiveSearch
-}

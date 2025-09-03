@@ -1,20 +1,14 @@
-import express from "express"
-import { LocalUserControler } from "./LocalUser.controler"
-const router= express.Router()
-router.post('/create-localuser',LocalUserControler.createLocalUser)
-router.get('/',LocalUserControler.getLocalUserById)
-
-router.put("/update/:userId", LocalUserControler.updateLocalUser);
-router.delete('/delete/:userId', LocalUserControler.softDeleteLocalUser);
-
-router.patch("/restore/:userId", LocalUserControler.restoreLocalUser);
+import { Router } from "express";
+import { LocalUserControllers } from "./LocalUser.controler";
 
 
-router.get("/search/role/:role", LocalUserControler.searchByRole);
-router.get("/search/status/:status", LocalUserControler.searchByStatus);
-router.get("/search/isDeleted/:isDeleted", LocalUserControler.searchByIsDeleted);
-router.get("/search/isBlocked/:isBlocked", LocalUserControler.searchByIsBlocked);
-router.get("/search/contact/:contactNumber", LocalUserControler.searchByContactNumber);
-router.get("/search/:searchTerm", LocalUserControler.combinedLiveSearch);
-export const LocalUserRoutes=router
+const router = Router();
 
+router.post("/create", LocalUserControllers.createLocalUserController);
+router.get("/search", LocalUserControllers.getAllLocalUsersController);
+router.get("/search/:id", LocalUserControllers.getLocalUserController);
+router.put("/update/:id", LocalUserControllers.updateLocalUserController);
+router.delete("/delete/:id", LocalUserControllers.softDeleteLocalUserController);
+router.patch("/restore/:id", LocalUserControllers.restoreLocalUserController);
+
+export const LocalUserRouters= router;
