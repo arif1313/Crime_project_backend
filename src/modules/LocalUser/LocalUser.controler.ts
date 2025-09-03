@@ -131,7 +131,108 @@ const restoreLocalUserController = async (req: Request, res: Response) => {
   }
 };
 
-export { restoreLocalUserController };
+
+
+// 1️⃣ Live search controller
+const liveSearchLocalUsersController = async (req: Request, res: Response) => {
+  try {
+    const { keyword } = req.query;
+    if (!keyword) return res.status(400).json({ success: false, message: "Keyword is required" });
+
+    const results = await LocalUserServices.liveSearchLocalUsers(keyword as string);
+    res.status(200).json({ success: true, count: results.length, data: results });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// 2️⃣ Search by contactNumber
+const searchByContactNumberController = async (req: Request, res: Response) => {
+  try {
+    const { contactNumber } = req.query;
+    if (!contactNumber) return res.status(400).json({ success: false, message: "contactNumber is required" });
+
+    const results = await LocalUserServices.searchByContactNumber(contactNumber as string);
+    res.status(200).json({ success: true, count: results.length, data: results });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// 3️⃣ Search by isDeleted
+const searchByIsDeletedController = async (req: Request, res: Response) => {
+  try {
+    const { isDeleted } = req.query;
+    if (isDeleted === undefined) return res.status(400).json({ success: false, message: "isDeleted is required" });
+
+    const results = await LocalUserServices.searchByIsDeleted(isDeleted === "true");
+    res.status(200).json({ success: true, count: results.length, data: results });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// 4️⃣ Search by isBlocked
+const searchByIsBlockedController = async (req: Request, res: Response) => {
+  try {
+    const { isBlocked } = req.query;
+    if (isBlocked === undefined) return res.status(400).json({ success: false, message: "isBlocked is required" });
+
+    const results = await LocalUserServices.searchByIsBlocked(isBlocked === "true");
+    res.status(200).json({ success: true, count: results.length, data: results });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ✅ Block Local User
+const blockLocalUserController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const blockedUser = await LocalUserServices.blockLocalUserById(id);
+
+    if (!blockedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Local user not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Local user blocked successfully",
+      data: blockedUser,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ✅ Unblock Local User
+const unblockLocalUserController = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const unblockedUser = await LocalUserServices.unblockLocalUserById(id);
+
+    if (!unblockedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Local user not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Local user unblocked successfully",
+      data: unblockedUser,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+
 
 
 // Export all controller methods as object
@@ -141,5 +242,11 @@ export const LocalUserControllers = {
   updateLocalUserController,
   softDeleteLocalUserController,
   restoreLocalUserController,
-  getAllLocalUsersController
+  getAllLocalUsersController,
+   liveSearchLocalUsersController,
+  searchByContactNumberController,
+  searchByIsDeletedController,
+  searchByIsBlockedController,
+   blockLocalUserController,
+  unblockLocalUserController,
 };

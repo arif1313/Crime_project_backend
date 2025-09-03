@@ -91,6 +91,60 @@ const restoreLocalUserById = async (id: string): Promise<ILocalUser | null> => {
   return restored ? restored.toObject() : null;
 };
 
+
+
+
+// 1️⃣ Live search on name + address
+const liveSearchLocalUsers = async (keyword: string): Promise<ILocalUser[]> => {
+  const results = await LocalUserModel.find({
+    $or: [
+      { address: { $regex: keyword, $options: "i" } },
+      { firstName: { $regex: keyword, $options: "i" } },
+      { lastName: { $regex: keyword, $options: "i" } },
+    ],
+  });
+  return results.map(u => u.toObject());
+};
+
+// 2️⃣ Search by contactNumber
+const searchByContactNumber = async (contactNumber: string): Promise<ILocalUser[]> => {
+  const results = await LocalUserModel.find({ contactNumber });
+  return results.map(u => u.toObject());
+};
+
+// 3️⃣ Search by isDeleted
+const searchByIsDeleted = async (isDeleted: boolean): Promise<ILocalUser[]> => {
+  const results = await LocalUserModel.find({ isDeleted });
+  return results.map(u => u.toObject());
+};
+
+// 4️⃣ Search by isBlocked
+const searchByIsBlocked = async (isBlocked: boolean): Promise<ILocalUser[]> => {
+  const results = await LocalUserModel.find({ isBlocked });
+  return results.map(u => u.toObject());
+};
+
+
+// ✅ Block Local User
+const blockLocalUserById = async (id: string): Promise<ILocalUser | null> => {
+  const blocked = await LocalUserModel.findByIdAndUpdate(
+    id,
+    { isBlocked: true },
+    { new: true }
+  );
+  return blocked ? blocked.toObject() : null;
+};
+
+// ✅ Unblock Local User
+const unblockLocalUserById = async (id: string): Promise<ILocalUser | null> => {
+  const unblocked = await LocalUserModel.findByIdAndUpdate(
+    id,
+    { isBlocked: false },
+    { new: true }
+  );
+  return unblocked ? unblocked.toObject() : null;
+};
+
 // Export all methods as object
 export const LocalUserServices = {
   createLocalUserDB,
@@ -98,5 +152,11 @@ export const LocalUserServices = {
   updateLocalUserById,
   softDeleteLocalUserById,
   restoreLocalUserById,
-  getAllLocalUsers
+  getAllLocalUsers,
+   liveSearchLocalUsers,
+  searchByContactNumber,
+  searchByIsDeleted,
+  searchByIsBlocked,
+   blockLocalUserById,
+  unblockLocalUserById,
 };
