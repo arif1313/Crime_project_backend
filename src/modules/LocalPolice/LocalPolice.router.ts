@@ -1,18 +1,27 @@
-import express from "express"
+// src/modules/LocalPoliceStation/LocalPoliceStation.router.ts
 
-import { LocalPoliceControler } from "./Localpolice.controler"
+import { Router } from "express";
+import { LocalPoliceControllers } from "./Localpolice.controler";
 
-const router= express.Router()
-router.post('/create-localPolice',LocalPoliceControler.createLocalPolice)
-router.get('/',LocalPoliceControler.getLocalPoliceById)
-router.put("/update/:userId", LocalPoliceControler.updateLocalPolice);
-router.delete("/delete/:userId", LocalPoliceControler.softDeleteLocalPolice);  // Soft delete
-router.patch("/restore/:userId", LocalPoliceControler.restoreLocalPolice); 
 
-// ✅ Search routes
-router.get("/search/status", LocalPoliceControler.searchByStatus);
-router.get("/search/contact", LocalPoliceControler.searchByContactNumber);
-router.get("/search/isBlocked", LocalPoliceControler.searchByIsBlocked);
-router.get("/search/isDeleted", LocalPoliceControler.searchByIsDeleted);
-router.get("/search/live", LocalPoliceControler.liveSearchLocalPolice);
-export const localPoliceRoutes=router
+const router = Router();
+
+// 🔍 Search Endpoints
+router.get("/search/live", LocalPoliceControllers.liveSearchLocalPoliceController);
+// router.get("/search/contact", LocalPoliceControllers.);
+router.get("/search/isDeleted", LocalPoliceControllers.searchByIsDeletedController);
+router.get("/search/isBlocked", LocalPoliceControllers.searchByIsBlockedController);
+
+// 📝 CRUD Endpoints
+router.post("/create", LocalPoliceControllers.createLocalPoliceController);
+router.get("/search", LocalPoliceControllers.getAllLocalPoliceController);
+router.get("/search/:id", LocalPoliceControllers.getLocalPoliceController);
+router.put("/update/:id", LocalPoliceControllers.updateLocalPoliceController);
+router.delete("/delete/:id", LocalPoliceControllers.softDeleteLocalPoliceController);
+router.patch("/restore/:id", LocalPoliceControllers.restoreLocalPoliceController);
+
+// 🚫 Block / ✅ Unblock
+router.patch("/block/:id", LocalPoliceControllers.blockLocalPoliceController);
+router.patch("/unblock/:id", LocalPoliceControllers.unblockLocalPoliceController);
+
+export const LocalPoliceStationRouters = router;
