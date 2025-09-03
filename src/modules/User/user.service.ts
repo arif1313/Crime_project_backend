@@ -33,14 +33,13 @@ const updateUserById = async (id: string, data: Partial<IUser>): Promise<IUserRe
 
   return updatedUser;
 };
-// Soft delete user
 const softDeleteUserById = async (id: string): Promise<IUserResponse | null> => {
-  const deletedUser = await UserModel.findByIdAndUpdate(
-    id,
-    { isDeleted: true },
-    { new: true }
-  ).select("-password");
-  return deletedUser;
+  const user = await UserModel.findById(id).select("-password");
+  if (!user) return null;
+  if (user.isDeleted) return user; // already deleted
+  user.isDeleted = true;
+  await user.save();
+  return user.toObject();
 };
 
 // Restore user

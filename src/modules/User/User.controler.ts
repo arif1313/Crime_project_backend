@@ -52,16 +52,24 @@ const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-// Soft delete user
 const softDeleteUser = async (req: Request, res: Response) => {
   try {
     const result = await UserService.softDeleteUserById(req.params.id);
-    if (!result) return res.status(404).json({ success: false, message: "User not found" });
-    res.status(200).json({ success: true, data: result });
+
+    if (!result) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (result.isDeleted) {
+      return res.status(200).json({ success: true, message: "User already deleted", data: result });
+    }
+
+    res.status(200).json({ success: true, message: "User deleted successfully", data: result });
   } catch (err: any) {
     res.status(400).json({ success: false, message: err.message });
   }
 };
+
 
 // Restore user
 const restoreUser = async (req: Request, res: Response) => {

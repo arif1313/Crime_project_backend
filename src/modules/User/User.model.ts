@@ -14,7 +14,7 @@ const UserSchema = new Schema<IUser>(
       required: true 
     },
     isBlocked: { type: Boolean, default: false },
-    isDeleted: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false }, 
   },
   { timestamps: true }
 );
