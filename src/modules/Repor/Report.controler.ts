@@ -1,287 +1,175 @@
 import { Request, Response } from "express";
-import { ReportServices } from "./Report.service";
-import { Query } from "mongoose";
+import { ReportService } from "./Report.service";
 
 
-
-const createReport= async(req:Request, res:Response)=>{
-
-   try{
-     const ReportData=req.body.report
-    const result= await ReportServices.createReportDB(ReportData)
-    res.status(200).json({
-        success:true,
-        massege:'Report Create succesfully',
-        data:result
-    })
-   }catch(err){
-    console.log(err)
-
-   }
-}
-
-
-    const getRepotById = async (req: Request, res: Response) => {
+const createReport = async (req: Request, res: Response) => {
   try {
-    const { reportId } = req.query;
-
-    let result;
-    if (reportId) {
-      result = await ReportServices.findByReportId(reportId as string);
-    } else {
-      result = await ReportServices.getallReportDB();
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Report retrieved successfully",
-      data: result,
-    });
-  } catch (err) {
-    console.log(err);
-   
+    const result = await ReportService.createReport(req.body);
+    res.status(201).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
 const updateReport = async (req: Request, res: Response) => {
   try {
-    const { reportId } = req.params;
-    const updateData = req.body;
-
-    if (!reportId) {
-      return res.status(400).json({ success: false, message: "Report ID is required" });
-    }
-
-    const updatedReport = await ReportServices.updateReportByReportId(reportId, updateData);
-
-    if (!updatedReport) {
-      return res.status(404).json({ success: false, message: "Report not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Report updated successfully",
-      data: updatedReport,
-    });
-  } catch (err) {
-   console.log(err)
+    const result = await ReportService.updateReport(req.params.id, req.body);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
-// Soft delete
- const softdeleteReport = async (req: Request, res: Response) => {
+
+const softDeleteReport = async (req: Request, res: Response) => {
   try {
-    const { reportId } = req.params;
-    if (!reportId) {
-      return res.status(400).json({ success: false, message: "Report ID is required" });
-    }
-
-    const deletedReport = await ReportServices.softdeleteReportByReportId(reportId);
-    if (!deletedReport) {
-      return res.status(404).json({ success: false, message: "Report not found" });
-    }
-
-    const result = await ReportServices.getallReportDB();
-    res.status(200).json({ success: true, message: "Report soft deleted", data: result });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to delete report" });
+    const result = await ReportService.softDeleteReport(req.params.id);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-// Restore
- const restoreReport = async (req: Request, res: Response) => {
+const restoreReport = async (req: Request, res: Response) => {
   try {
-    const { reportId } = req.params;
-    const restoredReport = await ReportServices.restoreReportByReportId(reportId);
-
-    if (!restoredReport) {
-      return res.status(404).json({ success: false, message: "Report not found" });
-    }
-
-    res.status(200).json({ success: true, message: "Report restored", data: restoredReport });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to restore report" });
+    const result = await ReportService.restoreReport(req.params.id);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-
-const liveSearchreport = async (req: Request, res: Response) => {
+const blockReport = async (req: Request, res: Response) => {
   try {
-    const { q } = req.query;
-
-    if (!q || q.toString().trim() === "") {
-      return res.status(200).json({ success: true, data: [] });
-    }
-
-    const results = await ReportServices.liveSearchReport(q as string);
-
-    res.status(200).json({
-      success: true,
-      message: "Search results",
-      data: results,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Search failed" });
+    const result = await ReportService.blockReport(req.params.id);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-const searchReportsByType = async (req: Request, res: Response) => {
+const unblockReport = async (req: Request, res: Response) => {
   try {
-    const { type } = req.query;
-
-    if (!type || type.toString().trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Report type query is required",
-      });
-    }
-
-    const results = await ReportServices.searchReportsByType(type as string);
-
-    res.status(200).json({
-      success: true,
-      message: "Reports retrieved successfully",
-      data: results,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to search reports by type",
-    });
+    const result = await ReportService.unblockReport(req.params.id);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-const searchReportByEmail = async (req: Request, res: Response) => {
+const getAllReports = async (_req: Request, res: Response) => {
   try {
-    const { email } = req.query;
-
-    if (!email || email.toString().trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Reporter email query is required",
-      });
-    }
-
-    const results = await ReportServices.searchReportsByEmail(email as string);
-
-    res.status(200).json({
-      success: true,
-      message: "Reports retrieved successfully by email",
-      data: results,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to search reports by email",
-    });
+    const result = await ReportService.getAllReports();
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-
-const searchReportsByContact = async (req: Request, res: Response) => {
+const getReportById = async (req: Request, res: Response) => {
   try {
-    const { contact } = req.query;
-
-    if (!contact || contact.toString().trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Reporter contact query is required",
-      });
-    }
-
-    const results = await ReportServices.searchReportsByContact(contact as string);
-
-    res.status(200).json({
-      success: true,
-      message: "Reports retrieved successfully by contact",
-      data: results,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to search reports by contact",
-    });
+    const result = await ReportService.getReportById(req.params.id);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-const searchReportsByStatus = async (req: Request, res: Response) => {
+// searches
+const searchByReportId = async (req: Request, res: Response) => {
   try {
-    const { status } = req.query;
-
-    if (!status || status.toString().trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Status query is required",
-      });
-    }
-
-    const results = await ReportServices.searchReportsByStatus(status as string);
-
-    res.status(200).json({
-      success: true,
-      message: "Reports retrieved successfully by status",
-      data: results,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to search reports by status",
-    });
+    const result = await ReportService.searchByReportId(req.params.reportId);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-
-//combine search
-const searchReportsCombine = async (req: Request, res: Response) => {
+const searchByReporterId = async (req: Request, res: Response) => {
   try {
-    const { reportType, reporterEmail, reporterContact, status } = req.query;
-
-    // at least one filter must be provided
-    if (!reportType && !reporterEmail && !reporterContact && !status) {
-      return res.status(400).json({
-        success: false,
-        message: "At least one search filter is required",
-      });
-    }
-
-    const results = await ReportServices.searchReportsCombine({
-      reportType: reportType as string,
-      reporterEmail: reporterEmail as string,
-      reporterContact: reporterContact as string,
-      status: status as string,
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Reports retrieved successfully",
-      data: results,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to search reports",
-    });
+    const result = await ReportService.searchByReporterId(req.params.reporterId);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
-export const ReportControler={
-    createReport,
-    getRepotById,
-    updateReport,
-    softdeleteReport,
-    restoreReport,
-    liveSearchreport,
-    searchReportsByType,
-    searchReportByEmail,
-    searchReportsByContact,
-    searchReportsByStatus,
-    searchReportsCombine
-}
 
+const searchByReportType = async (req: Request, res: Response) => {
+  try {
+    const result = await ReportService.searchByReportType(req.params.reportType);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 
+const searchByStatus = async (req: Request, res: Response) => {
+  try {
+    const result = await ReportService.searchByStatus(req.params.status);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+// isBlocked search
+const searchIsBlocked = async (req: Request, res: Response) => {
+  try {
+    const { isblocked } = req.query;  // query param = isblocked
+    const status = isblocked === "true"; // string -> boolean
 
+    const result = await ReportService.searchIsBlocked(status);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 
+// isDeleted search
+const searchIsDeleted = async (req: Request, res: Response) => {
+  try {
+    const { isdelete } = req.query; // query param = isdelete
+    const status = isdelete === "true"; // string -> boolean
+
+    const result = await ReportService.searchIsDeleted(status);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// live searches
+const liveSearchByName = async (req: Request, res: Response) => {
+  try {
+    const result = await ReportService.liveSearchByName(req.query.q as string);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+const liveSearchByAddress = async (req: Request, res: Response) => {
+  try {
+    const result = await ReportService.liveSearchByAddress(req.query.q as string);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const ReportController = {
+  createReport,
+  updateReport,
+  softDeleteReport,
+  restoreReport,
+  blockReport,
+  unblockReport,
+  getAllReports,
+  getReportById,
+  searchByReportId,
+  searchByReporterId,
+  searchByReportType,
+  searchByStatus,
+  searchIsBlocked,
+  searchIsDeleted,
+  liveSearchByName,
+  liveSearchByAddress,
+};

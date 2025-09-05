@@ -1,130 +1,110 @@
-import { ReportModel } from "./Report.model"
-import { IReport } from "./ReportInterface"
+import { ReportModel } from "./Report.model";
+import { IReport } from "./ReportInterface";
 
 
-
-const createReportDB= async (Report:IReport)=>{
-   const result= await ReportModel.create(Report)
-   return result
-}
-
-const getallReportDB = async () => {
-  const result = await ReportModel.find()
-  return result
-}
-const findByReportId = async (id: string) => {
-  return await ReportModel.findOne({ reportId: id });
+// Create
+const createReport = async (payload: IReport): Promise<IReport> => {
+  const report = new ReportModel(payload);
+  return await report.save();
 };
-const updateReportByReportId = async (reportId: string, updateData: Partial<IReport>) => {
-  const result = await ReportModel.findOneAndUpdate(
-    { reportId },        
-    updateData,          
-    { new: true }         
-  );
-  return result;
+
+// Update
+const updateReport = async (id: string, payload: Partial<IReport>): Promise<IReport | null> => {
+  return await ReportModel.findByIdAndUpdate(id, payload, { new: true }).lean();
 };
+
 // Soft delete
-const softdeleteReportByReportId = async (reportId: string) => {
-  return await ReportModel.findOneAndUpdate(
-    { reportId },
-    { isDeleted: true },
-    { new: true }
-  );
+const softDeleteReport = async (id: string): Promise<IReport | null> => {
+  return await ReportModel.findByIdAndUpdate(id, { isDeleted: true }, { new: true }).lean();
 };
 
 // Restore
-const restoreReportByReportId = async (reportId: string) => {
-  return await ReportModel.findOneAndUpdate(
-    { reportId },
-    { isDeleted: false },
-    { new: true }
-  );
+const restoreReport = async (id: string): Promise<IReport | null> => {
+  return await ReportModel.findByIdAndUpdate(id, { isDeleted: false }, { new: true }).lean();
 };
 
-const liveSearchReport = async (query: string) => {
+// Block
+const blockReport = async (id: string): Promise<IReport | null> => {
+  return await ReportModel.findByIdAndUpdate(id, { isBlocked: true }, { new: true }).lean();
+};
+
+// Unblock
+const unblockReport = async (id: string): Promise<IReport | null> => {
+  return await ReportModel.findByIdAndUpdate(id, { isBlocked: false }, { new: true }).lean();
+};
+
+// Get all (exclude deleted)
+const getAllReports = async (): Promise<IReport[]> => {
+  return await ReportModel.find({ isDeleted: false }).lean();
+};
+
+// Get by id
+const getReportById = async (id: string): Promise<IReport | null> => {
+  return await ReportModel.findById(id).lean();
+};
+
+// Search by reportId
+const searchByReportId = async (reportId: string): Promise<IReport[]> => {
+  return await ReportModel.find({ reportId }).lean();
+};
+
+// Search by reporterId
+const searchByReporterId = async (reporterId: string): Promise<IReport[]> => {
+  return await ReportModel.find({ reporterId }).lean();
+};
+
+// Search by type
+const searchByReportType = async (reportType: string): Promise<IReport[]> => {
+  return await ReportModel.find({ reportType }).lean();
+};
+
+// Search by status
+const searchByStatus = async (status: string): Promise<IReport[]> => {
+  return await ReportModel.find({ status }).lean();
+};
+
+// Service: ReportService.ts
+// Search isBlocked
+const searchIsBlocked = async (status: boolean): Promise<IReport[]> => {
+  return await ReportModel.find({ isBlocked: status }).lean();
+};
+
+// Search isDeleted
+const searchIsDeleted = async (status: boolean): Promise<IReport[]> => {
+  return await ReportModel.find({ isDeleted: status }).lean();
+};
+
+
+// Live search on name
+const liveSearchByName = async (keyword: string): Promise<IReport[]> => {
   return await ReportModel.find({
-    $or: [
-      { reportTitle: { $regex: query, $options: "i" } },
-      { reportLocation: { $regex: query, $options: "i" } }
-    ],
-    isDeleted: false
-  }).limit(10); // Limit results for performance
+    reportTitle: { $regex: keyword, $options: "i" },
+  }).lean();
 };
 
-
-
-
-// Search reports by type
-const searchReportsByType = async (reportType: string) => {
+// Live search on address
+const liveSearchByAddress = async (keyword: string): Promise<IReport[]> => {
   return await ReportModel.find({
-    reportType: { $regex: reportType, $options: "i" }, // case-insensitive search
-    isDeleted: false, // exclude soft deleted reports
-  });
+    reportLocation: { $regex: keyword, $options: "i" },
+  }).lean();
 };
 
-const searchReportsByEmail = async (email: string) => {
-  return await ReportModel.find({
-    reporterEmail: { $regex: email, $options: "i" }, // partial + case-insensitive
-    isDeleted: false, // skip deleted
-  });
+// ✅ Export as object
+export const ReportService = {
+  createReport,
+  updateReport,
+  softDeleteReport,
+  restoreReport,
+  blockReport,
+  unblockReport,
+  getAllReports,
+  getReportById,
+  searchByReportId,
+  searchByReporterId,
+  searchByReportType,
+  searchByStatus,
+  searchIsBlocked,
+  searchIsDeleted,
+  liveSearchByName,
+  liveSearchByAddress,
 };
-
-
-
-// Search reports by reporterContact
-const searchReportsByContact = async (contact: string) => {
-  return await ReportModel.find({
-    reporterContact: { $regex: contact, $options: "i" }, // partial & case-insensitive
-    isDeleted: false,
-  });
-};
-
-// Search reports by status
-const searchReportsByStatus = async (status: string) => {
-  return await ReportModel.find({
-    status: { $regex: status, $options: "i" }, // partial + case-insensitive
-    isDeleted: false,
-  });
-};
-//combine search
-const searchReportsCombine = async (filters: {
-  reportType?: string;
-  reporterEmail?: string;
-  reporterContact?: string;
-  status?: string;
-}) => {
-  const query: any = { isDeleted: false };
-
-  if (filters.reportType) {
-    query.reportType = { $regex: filters.reportType, $options: "i" };
-  }
-
-  if (filters.reporterEmail) {
-    query.reporterEmail = { $regex: filters.reporterEmail, $options: "i" };
-  }
-
-  if (filters.reporterContact) {
-    query.reporterContact = { $regex: filters.reporterContact, $options: "i" };
-  }
-
-  if (filters.status) {
-    query.status = { $regex: filters.status, $options: "i" };
-  }
-
-  return await ReportModel.find(query);
-};
-
-export const ReportServices={
-   createReportDB, 
-   getallReportDB,
-   findByReportId,
-    updateReportByReportId,
-   softdeleteReportByReportId,
-   restoreReportByReportId,
-   liveSearchReport,
-   searchReportsByType,
-   searchReportsByEmail,
-   searchReportsByContact,
-   searchReportsByStatus,
-   searchReportsCombine
-}

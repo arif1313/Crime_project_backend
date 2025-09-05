@@ -1,23 +1,34 @@
-import express from "express"
+import { Router } from "express";
+import { ReportController } from "./Report.controler";
 
 
-import { ReportControler } from "./Report.controler"
+const router = Router();
+// searches
+router.get("/search/reportId/:reportId", ReportController.searchByReportId);
+router.get("/search/reporterId/:reporterId", ReportController.searchByReporterId);
+router.get("/search/type/:reportType", ReportController.searchByReportType);
+router.get("/search/status/:status", ReportController.searchByStatus);
+router.get("/search/is-blocked", ReportController.searchIsBlocked);
+router.get("/search/is-deleted", ReportController.searchIsDeleted);
+// CRUD
+router.post("/create", ReportController.createReport);
+router.put("/update/:id", ReportController.updateReport);
+router.patch("/delete/:id", ReportController.softDeleteReport);
+router.patch("/restore/:id", ReportController.restoreReport);
 
-const router= express.Router()
-router.post('/create-report',ReportControler.createReport)
-router.get('/',ReportControler.getRepotById)
+// block/unblock
+router.patch("/block/:id", ReportController.blockReport);
+router.patch("/unblock/:id", ReportController.unblockReport);
 
-router.put("/update/:reportId", ReportControler.updateReport);
+// get all & by id
+router.get("/search", ReportController.getAllReports);
+router.get("/search/:id", ReportController.getReportById);
 
-router.delete("/delete/:reportId",ReportControler.softdeleteReport );   // Soft delete
-router.patch("/restore/:reportId", ReportControler.restoreReport);
-router.get("/search", ReportControler.liveSearchreport);
 
-router.get("/search", ReportControler.searchReportsByType);
 
-router.get("/searchByEmail", ReportControler.searchReportByEmail);
 
-router.get("/searchByContact", ReportControler.searchReportsByContact);
-router.get("/searchByStatus", ReportControler.searchReportsByStatus);
-router.get("/searchCombine", ReportControler.searchReportsCombine);
-export const ReportRoutes=router
+// live search
+router.get("/live/name", ReportController.liveSearchByName);
+router.get("/live/address", ReportController.liveSearchByAddress);
+
+export const ReportRouter =  router 

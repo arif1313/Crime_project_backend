@@ -1,19 +1,24 @@
+import { Types } from "mongoose";
+
 export type IReport = {
-  reportId: string
-  reportTime: Date // or Date, if using actual Date objects
-  reportTitle: string
-  reportDescription?: string
-  reportImage?: string
-  reporterEmail: string
-  reportLocation?: string
-  reportType?: string
-  informPerson?: string
-  informLocalPolice?: string
-  reporterContact?: string
-  reporterAddress?: string
-  createdAt: string // or Date
-  updatedAt: string // or Date
-  isBlocked: boolean
-  isDeleted: boolean
-  status?: string
-}
+  _id?: string;
+  reportId: string;
+  reportTime: Date;
+  reportTitle: string;
+  reportDescription?: string;
+  reportImage?: string;
+
+  reporterId: Types.ObjectId; // ✅ Reference to User model
+
+  reportLocation?: string;
+  reportType?: "crime" | "missing" | "accident" | "other";
+  informPerson?: string;
+  informLocalPolice?: string;
+
+  isBlocked: boolean;
+  isDeleted: boolean;
+  status?: "pending" | "reviewed" | "resolved" | "closed";
+
+  createdAt?: Date;
+  updatedAt?: Date;
+};
