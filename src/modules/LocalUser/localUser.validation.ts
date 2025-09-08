@@ -21,11 +21,10 @@ export const createLocalUserValidation = Joi.object({
   status: Joi.string().max(100).optional(),
   isBlocked: Joi.boolean().optional(),
   isDeleted: Joi.boolean().optional(),
-  email: Joi.string().email().required(),  // ✅ add email
+  email: Joi.string().email().required(),   // ✅ email required
+  password: Joi.string().min(6).max(30).required(), // ✅ password add করলাম
 });
 
-
-// Partial validation for updates
 export const updateLocalUserValidation = Joi.object({
   firstName: Joi.string().min(1).max(50),
   middleName: Joi.string().max(50).allow(null, ""),
@@ -43,4 +42,5 @@ export const updateLocalUserValidation = Joi.object({
   isBlocked: Joi.boolean(),
   isDeleted: Joi.boolean(),
   email: Joi.string().email(),
+  password: Joi.string().min(6).max(30), // ✅ update এর সময়ও allow করলাম
 });

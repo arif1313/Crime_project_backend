@@ -7,7 +7,11 @@ const createLocalUserController = async (req: Request, res: Response) => {
   try {
     const { error, value } = createLocalUserValidation.validate(req.body, { abortEarly: false });
     if (error) {
-      return res.status(400).json({ success: false, message: "Validation error", details: error.details.map(d => d.message) });
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        details: error.details.map((d) => d.message),
+      });
     }
 
     const result = await LocalUserServices.createLocalUserDB(value);
@@ -15,12 +19,13 @@ const createLocalUserController = async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       message: "Local user created successfully",
-      data: result,  // user & localUser properly included
+      data: result,
     });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
 // ✅ Get All LocalUsers
 const getAllLocalUsersController = async (_req: Request, res: Response) => {
   try {
@@ -231,6 +236,24 @@ const unblockLocalUserController = async (req: Request, res: Response) => {
   }
 };
 
+const searchByUserIdController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId as string; // query থেকে নিচ্ছি
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "userId is required" });
+    }
+
+    const localUser = await LocalUserServices.searchByUserId(userId);
+
+    if (!localUser) {
+      return res.status(404).json({ success: false, message: "Local user not found" });
+    }
+
+    res.status(200).json({ success: true, data: localUser });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
 
 
@@ -249,4 +272,5 @@ export const LocalUserControllers = {
   searchByIsBlockedController,
    blockLocalUserController,
   unblockLocalUserController,
+  searchByUserIdController
 };

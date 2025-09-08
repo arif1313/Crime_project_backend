@@ -1,60 +1,41 @@
 import Joi from "joi";
-import { Types } from "mongoose";
 
+// Allowed values
+const allowedReportTypes = ["murder", "robbery", "fraud", "assault", "theft", "arson", "other"] as const;
+const allowedStatus = ["pending", "reviewed", "resolved", "closed"] as const;
+
+// Create report validation
 export const createReportValidation = Joi.object({
-  reportId: Joi.string().required(),
-  reportTime: Joi.date().default(() => new Date()),
-  reportTitle: Joi.string().min(3).max(200).required(),
-  reportDescription: Joi.string().allow("", null),
-  reportImage: Joi.string().uri().allow("", null),
-
-  reporterId: Joi.string()
-    .custom((value, helpers) => {
-      if (!Types.ObjectId.isValid(value)) {
-        return helpers.error("any.invalid");
-      }
-      return value;
-    })
-    .required()
-    .messages({
-      "any.invalid": "Invalid reporterId, must be a valid MongoDB ObjectId",
-    }),
-
-  reportLocation: Joi.string().allow("", null),
-  reportType: Joi.string()
-    .valid("crime", "missing", "accident", "other")
-    .default("other"),
-  informPerson: Joi.string().allow("", null),
-  informLocalPolice: Joi.string().allow("", null),
-
-  isBlocked: Joi.boolean().default(false),
-  isDeleted: Joi.boolean().default(false),
-
-  status: Joi.string()
-    .valid("pending", "reviewed", "resolved", "closed")
-    .default("pending"),
+  reportTitle: Joi.string().required(),
+  reportType: Joi.string().valid(...allowedReportTypes).required(),
+  status: Joi.string().valid(...allowedStatus).optional(),
+  reportDescription: Joi.string().required(),
+  reportLocation: Joi.string().required(),
+  reporterId: Joi.string().required(),
+  reportImage: Joi.string().required(), // single image
+  informPerson: Joi.boolean().optional(),
+  informLocalPolice: Joi.boolean().optional(),
+  crimeDate: Joi.date().optional(),
+  crimeTime: Joi.string().optional(),
+  isBlocked: Joi.boolean().optional(),
+  isDeleted: Joi.boolean().optional(),
 });
+
+// Update report validation
 export const updateReportValidation = Joi.object({
-  reportTitle: Joi.string().min(3).max(200),
-  reportDescription: Joi.string().allow("", null),
-  reportImage: Joi.string().uri().allow("", null),
+  reportTitle: Joi.string().optional(),
+  reportType: Joi.string().valid(...allowedReportTypes).optional(),
+  status: Joi.string().valid(...allowedStatus).optional(),
+  reportDescription: Joi.string().optional(),
+  reportLocation: Joi.string().optional(),
+  reporterId: Joi.string().optional(),
+   reportImage: Joi.string().optional(),
+    informPerson: Joi.boolean().optional(),       // ✅ add this
+  informLocalPolice: Joi.boolean().optional(),  // ✅ add this
+  crimeDate: Joi.date().optional(),
+  crimeTime: Joi.string().optional(),
+  isBlocked: Joi.boolean().optional(),    // ✅ add this
+  isDeleted: Joi.boolean().optional(),    // ✅ add this
+  
+});
 
-  reporterId: Joi.string().custom((value, helpers) => {
-    if (!Types.ObjectId.isValid(value)) {
-      return helpers.error("any.invalid");
-    }
-    return value;
-  }).messages({
-    "any.invalid": "Invalid reporterId, must be a valid MongoDB ObjectId",
-  }),
-
-  reportLocation: Joi.string(),
-  reportType: Joi.string().valid("crime", "missing", "accident", "other"),
-  informPerson: Joi.string(),
-  informLocalPolice: Joi.string(),
-
-  isBlocked: Joi.boolean(),
-  isDeleted: Joi.boolean(),
-
-  status: Joi.string().valid("pending", "reviewed", "resolved", "closed"),
-}).min(1);

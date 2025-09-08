@@ -2,21 +2,28 @@ import { Types } from "mongoose";
 
 export type IReport = {
   _id?: string;
-  reportId: string;
-  reportTime: Date;
+
+  reportId: string; // auto-generated, always exists
+  reportDate?: Date;
+  reportTime?: Date;
+
   reportTitle: string;
   reportDescription?: string;
-  reportImage?: string;
+  reportImage?: string; // single image
 
-  reporterId: Types.ObjectId; // ✅ Reference to User model
+  reporterId: Types.ObjectId;
 
   reportLocation?: string;
-  reportType?: "crime" | "missing" | "accident" | "other";
-  informPerson?: string;
-  informLocalPolice?: string;
+  reportType?: "murder" | "robbery" | "fraud" | "assault" | "theft" | "arson" | "other";
 
-  isBlocked: boolean;
-  isDeleted: boolean;
+  informPerson?: boolean;
+  informLocalPolice?: boolean;
+
+  crimeDate?: Date;
+  crimeTime?: string;
+
+  isBlocked?: boolean;
+  isDeleted?: boolean;
   status?: "pending" | "reviewed" | "resolved" | "closed";
 
   createdAt?: Date;

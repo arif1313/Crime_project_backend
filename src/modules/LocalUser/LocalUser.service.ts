@@ -4,15 +4,21 @@ import { IUserResponse, UserService } from "../User/user.service";
 import { ILocalUser } from "./LocalUser.Interface";
 
 // Type for return
+// Type for return
 export type ILocalUserResponse = {
-  user: IUserResponse;  // password removed
+  user: IUserResponse;
   localUser: ILocalUser;
 };
 
-// Input type: userId optional
-export type CreateLocalUserInput = Omit<ILocalUser, "userId"> & Partial<IUserResponse> & { userId?: string };
+// Input type
+export type CreateLocalUserInput = Omit<ILocalUser, "userId"> & {
+  userId?: string;
+  email: string;
+  password: string;
+   contactNumber: string;
+};
 
- const createLocalUserDB = async (
+const createLocalUserDB = async (
   localData: CreateLocalUserInput
 ): Promise<ILocalUserResponse> => {
   let userId: string;
@@ -25,17 +31,18 @@ export type CreateLocalUserInput = Omit<ILocalUser, "userId"> & Partial<IUserRes
     user = foundUser;
   } else {
     const existingUser = await UserService.getAllUsersDB();
-    const foundUser = existingUser.find(u => u.email === localData.email);
+    const foundUser = existingUser.find((u) => u.email === localData.email);
 
     if (foundUser) {
       userId = foundUser._id!;
       user = foundUser;
     } else {
+      // ✅ এখন password body থেকে নেব
       const newUser = await UserService.createUserDB({
         name: localData.firstName + " " + (localData.lastName || ""),
-        email: localData.email || "",
-        contactNumber: localData.contactNumber || "",
-        password: "default123",
+        email: localData.email,
+        contactNumber: localData.contactNumber,
+        password: localData.password, // 👈 এখানেই আসল পরিবর্তন
         role: "localUser",
       });
       userId = newUser._id!;
@@ -43,7 +50,7 @@ export type CreateLocalUserInput = Omit<ILocalUser, "userId"> & Partial<IUserRes
     }
   }
 
-  // ✅ Create LocalUser
+  // ✅ LocalUser create
   const localUser = new LocalUserModel({
     ...localData,
     userId: new Types.ObjectId(userId),
@@ -52,10 +59,11 @@ export type CreateLocalUserInput = Omit<ILocalUser, "userId"> & Partial<IUserRes
   const savedLocalUser = await localUser.save();
 
   return {
-    user,  // ensure this is not null
+    user,
     localUser: savedLocalUser.toObject(),
   };
 };
+
 // ✅ Get all LocalUsers (excluding soft-deleted)
 const getAllLocalUsers = async (): Promise<ILocalUser[]> => {
   const localUsers = await LocalUserModel.find({ isDeleted: false });
@@ -144,6 +152,12 @@ const unblockLocalUserById = async (id: string): Promise<ILocalUser | null> => {
   );
   return unblocked ? unblocked.toObject() : null;
 };
+const searchByUserId = async (userId: string): Promise<ILocalUser | null> => {
+  // এখানে শুধু userId ফিল্ডে match করবে
+  const localUser = await LocalUserModel.findOne({ userId });
+  return localUser ? localUser.toObject() : null;
+};
+
 
 // Export all methods as object
 export const LocalUserServices = {
@@ -158,5 +172,6 @@ export const LocalUserServices = {
   searchByIsDeleted,
   searchByIsBlocked,
    blockLocalUserById,
-  unblockLocalUserById,
+  unblockLocalUserById,searchByUserId
+
 };

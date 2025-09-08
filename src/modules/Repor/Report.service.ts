@@ -1,45 +1,53 @@
 import { ReportModel } from "./Report.model";
 import { IReport } from "./ReportInterface";
+import { Types } from "mongoose";
 
-
-// Create
-const createReport = async (payload: IReport): Promise<IReport> => {
+// Create a new report (reportId auto-generated in model)
+const createReport = async (
+  payload: Omit<IReport, "_id" | "reportId" | "reportDate" | "reportTime">
+): Promise<IReport> => {
   const report = new ReportModel(payload);
   return await report.save();
 };
 
-// Update
+// Update report by ID
 const updateReport = async (id: string, payload: Partial<IReport>): Promise<IReport | null> => {
+  if (!Types.ObjectId.isValid(id)) return null;
   return await ReportModel.findByIdAndUpdate(id, payload, { new: true }).lean();
 };
 
-// Soft delete
+// Soft delete a report
 const softDeleteReport = async (id: string): Promise<IReport | null> => {
+  if (!Types.ObjectId.isValid(id)) return null;
   return await ReportModel.findByIdAndUpdate(id, { isDeleted: true }, { new: true }).lean();
 };
 
-// Restore
+// Restore a soft-deleted report
 const restoreReport = async (id: string): Promise<IReport | null> => {
+  if (!Types.ObjectId.isValid(id)) return null;
   return await ReportModel.findByIdAndUpdate(id, { isDeleted: false }, { new: true }).lean();
 };
 
-// Block
+// Block a report
 const blockReport = async (id: string): Promise<IReport | null> => {
+  if (!Types.ObjectId.isValid(id)) return null;
   return await ReportModel.findByIdAndUpdate(id, { isBlocked: true }, { new: true }).lean();
 };
 
-// Unblock
+// Unblock a report
 const unblockReport = async (id: string): Promise<IReport | null> => {
+  if (!Types.ObjectId.isValid(id)) return null;
   return await ReportModel.findByIdAndUpdate(id, { isBlocked: false }, { new: true }).lean();
 };
 
-// Get all (exclude deleted)
+// Get all reports (exclude deleted)
 const getAllReports = async (): Promise<IReport[]> => {
   return await ReportModel.find({ isDeleted: false }).lean();
 };
 
-// Get by id
+// Get a report by MongoDB ID
 const getReportById = async (id: string): Promise<IReport | null> => {
+  if (!Types.ObjectId.isValid(id)) return null;
   return await ReportModel.findById(id).lean();
 };
 
@@ -50,46 +58,65 @@ const searchByReportId = async (reportId: string): Promise<IReport[]> => {
 
 // Search by reporterId
 const searchByReporterId = async (reporterId: string): Promise<IReport[]> => {
+  if (!Types.ObjectId.isValid(reporterId)) return [];
   return await ReportModel.find({ reporterId }).lean();
 };
 
-// Search by type
-const searchByReportType = async (reportType: string): Promise<IReport[]> => {
+// Search by reportType
+const searchByReportType = async (
+  reportType: "murder" | "robbery" | "fraud" | "assault" | "theft" | "arson" | "other"
+): Promise<IReport[]> => {
   return await ReportModel.find({ reportType }).lean();
 };
 
 // Search by status
-const searchByStatus = async (status: string): Promise<IReport[]> => {
+const searchByStatus = async (
+  status: "pending" | "reviewed" | "resolved" | "closed"
+): Promise<IReport[]> => {
   return await ReportModel.find({ status }).lean();
 };
 
-// Service: ReportService.ts
-// Search isBlocked
-const searchIsBlocked = async (status: boolean): Promise<IReport[]> => {
-  return await ReportModel.find({ isBlocked: status }).lean();
+// Search blocked/unblocked reports
+const searchIsBlocked = async (isBlocked: boolean): Promise<IReport[]> => {
+  return await ReportModel.find({ isBlocked }).lean();
 };
 
-// Search isDeleted
-const searchIsDeleted = async (status: boolean): Promise<IReport[]> => {
-  return await ReportModel.find({ isDeleted: status }).lean();
+// Search deleted/non-deleted reports
+const searchIsDeleted = async (isDeleted: boolean): Promise<IReport[]> => {
+  return await ReportModel.find({ isDeleted }).lean();
 };
 
-
-// Live search on name
+// Live search by reportTitle
 const liveSearchByName = async (keyword: string): Promise<IReport[]> => {
   return await ReportModel.find({
     reportTitle: { $regex: keyword, $options: "i" },
+    isDeleted: false,
   }).lean();
 };
 
-// Live search on address
+// Live search by reportLocation
 const liveSearchByAddress = async (keyword: string): Promise<IReport[]> => {
   return await ReportModel.find({
     reportLocation: { $regex: keyword, $options: "i" },
+    isDeleted: false,
   }).lean();
 };
+// Report.service.ts
+const combinedSearch = async (
+  reportType?: string,
+  reportTitle?: string,
+  reportLocation?: string
+): Promise<IReport[]> => {
+  const query: any = { isDeleted: false };
 
-// ✅ Export as object
+  if (reportType) query.reportType = reportType;
+  if (reportTitle) query.reportTitle = { $regex: reportTitle, $options: "i" };
+  if (reportLocation) query.reportLocation = { $regex: reportLocation, $options: "i" };
+
+  return await ReportModel.find(query).lean();
+};
+
+// Export all service methods
 export const ReportService = {
   createReport,
   updateReport,
@@ -107,4 +134,5 @@ export const ReportService = {
   searchIsDeleted,
   liveSearchByName,
   liveSearchByAddress,
+  combinedSearch
 };

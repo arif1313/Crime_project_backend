@@ -8,7 +8,7 @@ router.get("/search/contact", LocalUserControllers.searchByContactNumberControll
 router.get("/search/isDeleted", LocalUserControllers.searchByIsDeletedController);
 router.get("/search/isBlocked", LocalUserControllers.searchByIsBlockedController);
 
-
+router.get("/search/userId", LocalUserControllers.searchByUserIdController);
 router.post("/create", LocalUserControllers.createLocalUserController);
 router.get("/search", LocalUserControllers.getAllLocalUsersController);
 router.get("/search/:id", LocalUserControllers.getLocalUserController);
