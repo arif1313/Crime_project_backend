@@ -1,31 +1,52 @@
 import { Request, Response } from "express";
 import { LocalUserServices } from "./LocalUser.service";
 import { createLocalUserValidation, updateLocalUserValidation } from "./localUser.validation";
+import { UserService } from "../User/user.service";
+import { UserModel } from "../User/User.model";
+import { LocalUserModel } from "./LocalUser.model";
 
-
-const createLocalUserController = async (req: Request, res: Response) => {
+export const createLocalUserController = async (req: Request, res: Response) => {
   try {
-    const { error, value } = createLocalUserValidation.validate(req.body, { abortEarly: false });
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation error",
-        details: error.details.map((d) => d.message),
-      });
+    const { firstName, lastName, age, address, dateOfBirth, email, contactNumber, password } = req.body;
+
+    // File path
+    let profileImage = "";
+    if (req.file) {
+      profileImage = `/uploads/${req.file.filename}`;
     }
 
-    const result = await LocalUserServices.createLocalUserDB(value);
+    // Create main User
+    const user = await UserModel.create({
+      name: `${firstName} ${lastName}`,   // ✅ name দিচ্ছি
+  email,
+  password,
+  contactNumber,
+  role: "localUser",                  // ✅ role fix করে দিলাম
+});
+
+    // Create LocalUser with reference
+    const localUser = await LocalUserModel.create({
+      firstName,
+      lastName,
+      age,
+      address,
+      dateOfBirth,
+      email,
+      contactNumber,
+      password,
+      profileImage,
+      userId: user._id,
+    });
 
     res.status(201).json({
       success: true,
-      message: "Local user created successfully",
-      data: result,
+      message: "LocalUser created successfully",
+      data: localUser,
     });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // ✅ Get All LocalUsers
 const getAllLocalUsersController = async (_req: Request, res: Response) => {
   try {
@@ -236,24 +257,45 @@ const unblockLocalUserController = async (req: Request, res: Response) => {
   }
 };
 
-const searchByUserIdController = async (req: Request, res: Response) => {
+export const searchByUserIdController = async (req: Request, res: Response) => {
   try {
-    const userId = req.query.userId as string; // query থেকে নিচ্ছি
-    if (!userId) {
+    const { userId } = req.query; // ✅ query থেকে userId আসবে
+
+    if (!userId || typeof userId !== "string") {
       return res.status(400).json({ success: false, message: "userId is required" });
     }
 
-    const localUser = await LocalUserServices.searchByUserId(userId);
+    const result = await LocalUserServices.searchByUserId(userId);
 
-    if (!localUser) {
+    if (!result) {
       return res.status(404).json({ success: false, message: "Local user not found" });
     }
 
-    res.status(200).json({ success: true, data: localUser });
+    res.status(200).json({ success: true, data: result });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+// const searchByUserIdController = async (req: Request, res: Response) => {
+//   try {
+//     const userId = req.query.userId as string; // query থেকে নিচ্ছি
+//     if (!userId) {
+//       return res.status(400).json({ success: false, message: "userId is required" });
+//     }
+
+//     const localUser = await LocalUserServices.searchByUserId(userId);
+
+//     if (!localUser) {
+//       return res.status(404).json({ success: false, message: "Local user not found" });
+//     }
+
+//     res.status(200).json({ success: true, data: localUser });
+//   } catch (err: any) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
 
 
 

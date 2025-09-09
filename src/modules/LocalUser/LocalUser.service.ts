@@ -152,11 +152,17 @@ const unblockLocalUserById = async (id: string): Promise<ILocalUser | null> => {
   );
   return unblocked ? unblocked.toObject() : null;
 };
+
+
+
+// Search by reporterId
 const searchByUserId = async (userId: string): Promise<ILocalUser | null> => {
-  // এখানে শুধু userId ফিল্ডে match করবে
-  const localUser = await LocalUserModel.findOne({ userId });
-  return localUser ? localUser.toObject() : null;
+  if (!Types.ObjectId.isValid(userId)) return null;
+
+  // userId ফিল্ডে খুঁজছি (string আকারে stored)
+  return await LocalUserModel.findOne({ userId }).lean();
 };
+
 
 
 // Export all methods as object

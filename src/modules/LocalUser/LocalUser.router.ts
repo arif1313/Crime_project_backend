@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { LocalUserControllers } from "./LocalUser.controler";
-
+import { upload } from "../../uploads";
 
 const router = Router();
 router.get("/search/live", LocalUserControllers.liveSearchLocalUsersController);
@@ -9,7 +9,7 @@ router.get("/search/isDeleted", LocalUserControllers.searchByIsDeletedController
 router.get("/search/isBlocked", LocalUserControllers.searchByIsBlockedController);
 
 router.get("/search/userId", LocalUserControllers.searchByUserIdController);
-router.post("/create", LocalUserControllers.createLocalUserController);
+router.post("/create", upload.single("profile"), LocalUserControllers.createLocalUserController);
 router.get("/search", LocalUserControllers.getAllLocalUsersController);
 router.get("/search/:id", LocalUserControllers.getLocalUserController);
 router.put("/update/:id", LocalUserControllers.updateLocalUserController);

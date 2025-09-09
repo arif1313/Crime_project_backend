@@ -6,12 +6,14 @@ import { AuthRoutes } from './modules/User/auth.route'
 import { LocalUserRouters } from './modules/LocalUser/LocalUser.router'
 import { LocalPoliceStationRouters } from './modules/LocalPolice/LocalPolice.router'
 import { ReportRouter } from './modules/Repor/Report.router'
+import path from 'path'
 
 
 const app: Application = express()
 
 app.use(express.json())
 app.use(cors())
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 //application routes
 app.use('/api/v1/user',UserRoutes) 
 app.use('/api/v1/auth',AuthRoutes)
