@@ -122,6 +122,7 @@ const searchByReporterId = async (req: Request, res: Response) => {
   }
 };
 
+
 // Search by reportType
 const searchByReportType = async (req: Request, res: Response) => {
   try {
@@ -208,6 +209,14 @@ const combinedSearch = async (req: Request, res: Response) => {
   }
 };
 
+const searchDeletedByReporterId = async (req: Request, res: Response) => {
+  try {
+    const result = await ReportService.searchDeletedByReporterId(req.params.reporterId);
+    res.json({ success: true, data: result });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
 
 export const ReportController = {
@@ -227,6 +236,7 @@ export const ReportController = {
   searchIsDeleted,
   liveSearchByName,
   liveSearchByAddress,
-  combinedSearch
+  combinedSearch,
+  searchDeletedByReporterId
 };
 

@@ -40,7 +40,6 @@ const unblockReport = async (id: string): Promise<IReport | null> => {
   return await ReportModel.findByIdAndUpdate(id, { isBlocked: false }, { new: true }).lean();
 };
 
-// Get all reports (exclude deleted)
 const getAllReports = async (): Promise<IReport[]> => {
   return await ReportModel.find({ isDeleted: false }).lean();
 };
@@ -56,10 +55,11 @@ const searchByReportId = async (reportId: string): Promise<IReport[]> => {
   return await ReportModel.find({ reportId }).lean();
 };
 
-// Search by reporterId
 const searchByReporterId = async (reporterId: string): Promise<IReport[]> => {
   if (!Types.ObjectId.isValid(reporterId)) return [];
-  return await ReportModel.find({ reporterId }).lean();
+  
+  // ✅ এখানে শুধু active (non-deleted) reports আনা হবে
+  return await ReportModel.find({ reporterId, isDeleted: false }).lean();
 };
 
 // Search by reportType
@@ -115,7 +115,11 @@ const combinedSearch = async (
 
   return await ReportModel.find(query).lean();
 };
-
+// Search deleted reports by reporterId
+const searchDeletedByReporterId = async (reporterId: string): Promise<IReport[]> => {
+  if (!Types.ObjectId.isValid(reporterId)) return [];
+  return await ReportModel.find({ reporterId, isDeleted: true }).lean();
+};
 // Export all service methods
 export const ReportService = {
   createReport,
@@ -134,5 +138,6 @@ export const ReportService = {
   searchIsDeleted,
   liveSearchByName,
   liveSearchByAddress,
-  combinedSearch
+  combinedSearch,
+  searchDeletedByReporterId
 };

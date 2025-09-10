@@ -26,11 +26,10 @@ router.patch("/unblock/:id", ReportController.unblockReport);
 router.get("/search", ReportController.getAllReports);
 router.get("/search/:id", ReportController.getReportById);
 
-
-
-
 // live search
 router.get("/live/name", ReportController.liveSearchByName);
 router.get("/live/address", ReportController.liveSearchByAddress);
+router.get("/search/deleted/reporterId/:reporterId", ReportController.searchDeletedByReporterId);
+
 
 export const ReportRouter =  router 

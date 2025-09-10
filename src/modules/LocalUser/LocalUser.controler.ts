@@ -278,29 +278,6 @@ export const searchByUserIdController = async (req: Request, res: Response) => {
 };
 
 
-// const searchByUserIdController = async (req: Request, res: Response) => {
-//   try {
-//     const userId = req.query.userId as string; // query থেকে নিচ্ছি
-//     if (!userId) {
-//       return res.status(400).json({ success: false, message: "userId is required" });
-//     }
-
-//     const localUser = await LocalUserServices.searchByUserId(userId);
-
-//     if (!localUser) {
-//       return res.status(404).json({ success: false, message: "Local user not found" });
-//     }
-
-//     res.status(200).json({ success: true, data: localUser });
-//   } catch (err: any) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// };
-
-
-
-
-// Export all controller methods as object
 export const LocalUserControllers = {
   createLocalUserController,
   getLocalUserController,
