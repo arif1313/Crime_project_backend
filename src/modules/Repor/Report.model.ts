@@ -29,6 +29,8 @@ const ReportSchema = new Schema<IReport>(
       enum: ["pending", "reviewed", "resolved", "closed"],
       default: "pending",
     },
+     varifyNumber: { type: Number, default: 0 },
+  verifiedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true, versionKey: false }
 );

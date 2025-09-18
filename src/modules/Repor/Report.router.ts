@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ReportController } from "./Report.controler";
+import { authMiddleware } from "../../Middelware/auth.middleware";
 
 
 
@@ -31,5 +32,6 @@ router.get("/live/name", ReportController.liveSearchByName);
 router.get("/live/address", ReportController.liveSearchByAddress);
 router.get("/search/deleted/reporterId/:reporterId", ReportController.searchDeletedByReporterId);
 
+router.patch("/verify/:id", authMiddleware, ReportController.verifyReport);
 
 export const ReportRouter =  router 

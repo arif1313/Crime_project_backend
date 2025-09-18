@@ -18,7 +18,7 @@ export const createLocalUserController = async (req: Request, res: Response) => 
     // Create main User
     const user = await UserModel.create({
       name: `${firstName} ${lastName}`,   // ✅ name দিচ্ছি
-  email,
+  email, 
   password,
   contactNumber,
   role: "localUser",                  // ✅ role fix করে দিলাম

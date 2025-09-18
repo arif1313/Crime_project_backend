@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ReportService } from "./Report.service";
 import { createReportValidation, updateReportValidation } from "./Report.validation";
+import { AuthRequest } from "../../Middelware/auth.middleware";
 
 // Allowed values
 const allowedReportTypes = ["murder", "robbery", "fraud", "assault", "theft", "arson", "other"] as const;
@@ -219,6 +220,41 @@ const searchDeletedByReporterId = async (req: Request, res: Response) => {
 };
 
 
+
+ const verifyReport = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const id = req.params.id;
+    const result = await ReportService.verifyReport(id, String(userId));
+
+    if (result.error) {
+      switch (result.error) {
+        case "invalid_report_id":
+        case "invalid_user_id":
+          return res.status(400).json({ success: false, message: "Invalid id" });
+        case "not_found":
+          return res.status(404).json({ success: false, message: "Report not found" });
+        case "owner_cannot_verify":
+          return res.status(400).json({ success: false, message: "Reporter cannot verify their own report" });
+        case "already_verified":
+          return res.status(400).json({ success: false, message: "You already verified this report" });
+        default:
+          return res.status(400).json({ success: false, message: "Unable to verify" });
+      }
+    }
+
+    // ✅ success
+    return res.json({ success: true, data: result.data });
+  } catch (err: any) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 export const ReportController = {
   createReport,
   updateReport,
@@ -237,6 +273,7 @@ export const ReportController = {
   liveSearchByName,
   liveSearchByAddress,
   combinedSearch,
-  searchDeletedByReporterId
+  searchDeletedByReporterId,
+  verifyReport
 };
 

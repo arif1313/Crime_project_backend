@@ -28,4 +28,6 @@ export type IReport = {
 
   createdAt?: Date;
   updatedAt?: Date;
+  varifyNumber?:Number;
+  verifiedBy?: Types.ObjectId[];
 };

@@ -6,6 +6,7 @@ import { Types } from "mongoose";
 const createReport = async (
   payload: Omit<IReport, "_id" | "reportId" | "reportDate" | "reportTime">
 ): Promise<IReport> => {
+
   const report = new ReportModel(payload);
   return await report.save();
 };
@@ -41,7 +42,7 @@ const unblockReport = async (id: string): Promise<IReport | null> => {
 };
 
 const getAllReports = async (): Promise<IReport[]> => {
-  return await ReportModel.find({ isDeleted: false }).lean();
+  return await ReportModel.find({ isDeleted: false }).populate("reporterId", "name email").lean();
 };
 
 // Get a report by MongoDB ID
@@ -101,7 +102,7 @@ const liveSearchByAddress = async (keyword: string): Promise<IReport[]> => {
     isDeleted: false,
   }).lean();
 };
-// Report.service.ts
+// Report.service.ts 
 const combinedSearch = async (
   reportType?: string,
   reportTitle?: string,
@@ -120,6 +121,39 @@ const searchDeletedByReporterId = async (reporterId: string): Promise<IReport[]>
   if (!Types.ObjectId.isValid(reporterId)) return [];
   return await ReportModel.find({ reporterId, isDeleted: true }).lean();
 };
+
+
+const verifyReport = async (id: string, userId: string) => {
+  if (!Types.ObjectId.isValid(id)) return { error: "invalid_report_id" };
+  if (!Types.ObjectId.isValid(userId)) return { error: "invalid_user_id" };
+
+  const report = await ReportModel.findById(id);
+  if (!report) return { error: "not_found" };
+
+  // Prevent reporter from verifying their own report
+  if (report.reporterId && report.reporterId.toString() === userId.toString()) {
+    return { error: "owner_cannot_verify" };
+  }
+
+  // Prevent duplicate verifies
+  if (report.verifiedBy && report.verifiedBy.some(v => v.toString() === userId.toString())) {
+    return { error: "already_verified" };
+  }
+
+  const updated = await ReportModel.findByIdAndUpdate(
+    id,
+    {
+      $inc: { varifyNumber: 1 },
+      $addToSet: { verifiedBy: userId },
+    },
+    { new: true }
+  ).populate("reporterId", "name email").lean();
+
+  return { data: updated };
+};
+
+
+
 // Export all service methods
 export const ReportService = {
   createReport,
@@ -139,5 +173,6 @@ export const ReportService = {
   liveSearchByName,
   liveSearchByAddress,
   combinedSearch,
-  searchDeletedByReporterId
+  searchDeletedByReporterId,
+  verifyReport
 };
