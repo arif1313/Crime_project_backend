@@ -31,6 +31,7 @@ const ReportSchema = new Schema<IReport>(
     },
      varifyNumber: { type: Number, default: 0 },
   verifiedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  ActionTaken:[{type:Schema.Types.ObjectId,ref:"ActionTaken"}]
   },
   { timestamps: true, versionKey: false }
 );

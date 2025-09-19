@@ -43,7 +43,7 @@ const createLocalUserDB = async (
         email: localData.email,
         contactNumber: localData.contactNumber,
         password: localData.password, // 👈 এখানেই আসল পরিবর্তন
-        role: "localUser",
+        role:"localUser",
       });
       userId = newUser._id!;
       user = newUser;

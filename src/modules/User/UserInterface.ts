@@ -4,7 +4,7 @@ export interface IUser {
   email: string;
   contactNumber: string;
   password: string;
-  role: "localUser" | "localPolice" | "centerPolice";
+  role: "localUser" | "localPolice" | "centerPolice"|"actionTeam";
   isBlocked?: boolean;
   isDeleted?: boolean;
 }

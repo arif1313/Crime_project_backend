@@ -7,7 +7,7 @@ export const createUserValidation = Joi.object({
     .pattern(/^[0-9]{10,15}$/)
     .required(),
   password: Joi.string().min(6).max(30).required(),
-  role: Joi.string().valid("localUser", "localPolice", "centerPolice").required(),
+  role: Joi.string().valid("localUser", "localPolice", "centerPolice","actionTeam").required(),
   isBlocked: Joi.boolean().default(false),
   isDeleted: Joi.boolean().default(false),
 });

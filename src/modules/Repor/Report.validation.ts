@@ -31,6 +31,7 @@ export const createReportValidation = Joi.object({
   varifyNumber: Joi.number().default(0),
 
   verifiedBy: Joi.array().items(objectIdValidation),
+  ActionTaken: Joi.array().items(objectIdValidation).optional(),
 });
 
 // ✅ Update report validation
@@ -49,6 +50,6 @@ export const updateReportValidation = Joi.object({
   isBlocked: Joi.boolean().optional(),
   isDeleted: Joi.boolean().optional(),
   varifyNumber: Joi.number().optional(),
-
+ActionTaken: Joi.array().items(objectIdValidation).optional(),
   verifiedBy: Joi.array().items(objectIdValidation).optional(),
 });

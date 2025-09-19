@@ -10,7 +10,7 @@ const UserSchema = new Schema<IUser>(
     password: { type: String, required: true },
     role: { 
       type: String, 
-      enum: ["localUser", "localPolice", "centerPolice"], 
+      enum: ["localUser", "localPolice", "centerPolice","actionTeam"], 
       required: true 
     },
     isBlocked: { type: Boolean, default: false },

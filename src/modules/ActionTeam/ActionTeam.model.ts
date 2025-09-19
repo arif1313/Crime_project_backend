@@ -17,7 +17,12 @@ const actionTeamSchema = new Schema<IActionteam>(
     address: { type: String },
     status: { type: String },
     activity: { type: String, enum: ["work", "free", "vacation"], default: "free" },
-    joingDate: { type: Date, required: true },
+    joingDate: { 
+  type: Date, 
+  required: true, 
+  default: Date.now // 👈 auto set
+},
+   
     isBlocked: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
   },

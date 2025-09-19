@@ -33,5 +33,6 @@ router.get("/live/address", ReportController.liveSearchByAddress);
 router.get("/search/deleted/reporterId/:reporterId", ReportController.searchDeletedByReporterId);
 
 router.patch("/verify/:id", authMiddleware, ReportController.verifyReport);
-
+router.post("/:id/assign-action", ReportController.assignActionTeams);
+router.get("/with-action-taken", ReportController.getReportsWithActionTaken);
 export const ReportRouter =  router 

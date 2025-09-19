@@ -30,4 +30,5 @@ export type IReport = {
   updatedAt?: Date;
   varifyNumber?:Number;
   verifiedBy?: Types.ObjectId[];
+  ActionTaken?:Types.ObjectId[];
 };

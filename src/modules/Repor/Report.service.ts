@@ -153,6 +153,40 @@ const verifyReport = async (id: string, userId: string) => {
 };
 
 
+// ✅ Assign Action Teams
+const assignActionTeams = async (reportId: string, teamIds: string[]) => {
+  if (!Types.ObjectId.isValid(reportId)) return { error: "invalid_report_id" };
+
+  const report = await ReportModel.findById(reportId);
+  if (!report) return { error: "not_found" };
+
+  // teamIds validate
+  const validTeamIds = teamIds.filter((id) => Types.ObjectId.isValid(id));
+  if (validTeamIds.length === 0) return { error: "invalid_team_ids" };
+
+  // already selected গুলো বাদ দিয়ে নতুন গুলো add হবে
+  const updated = await ReportModel.findByIdAndUpdate(
+    reportId,
+    { $addToSet: { ActionTaken: { $each: validTeamIds } } }, // multiple push without duplicates
+    { new: true }
+  )
+    .populate("reporterId", "name email")
+    .lean();
+
+  return { data: updated };
+};
+
+// Get all reports that have ActionTaken assigned
+const getReportsWithActionTaken = async (): Promise<IReport[]> => {
+  return await ReportModel.find({ 
+    ActionTaken: { $exists: true, $ne: [] }, // ActionTaken array must exist and not empty
+    isDeleted: false
+  })
+   
+    .lean();
+};
+
+
 
 // Export all service methods
 export const ReportService = {
@@ -174,5 +208,7 @@ export const ReportService = {
   liveSearchByAddress,
   combinedSearch,
   searchDeletedByReporterId,
-  verifyReport
+  verifyReport,
+  assignActionTeams,
+  getReportsWithActionTaken
 };

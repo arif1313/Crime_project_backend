@@ -254,6 +254,51 @@ const searchDeletedByReporterId = async (req: Request, res: Response) => {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
+const assignActionTeams = async (req: Request, res: Response) => {
+  try {
+    const { actionTeams } = req.body;
+    const { id } = req.params;
+
+    if (!Array.isArray(actionTeams) || actionTeams.length === 0) {
+      return res.status(400).json({ success: false, message: "No action teams provided" });
+    }
+
+    const result = await ReportService.assignActionTeams(id, actionTeams);
+
+    if (result.error) {
+      switch (result.error) {
+        case "invalid_report_id":
+          return res.status(400).json({ success: false, message: "Invalid report id" });
+        case "invalid_team_ids":
+          return res.status(400).json({ success: false, message: "Invalid team ids" });
+        case "not_found":
+          return res.status(404).json({ success: false, message: "Report not found" });
+        default:
+          return res.status(400).json({ success: false, message: "Unable to assign action teams" });
+      }
+    }
+
+    return res.json({ success: true, data: result.data });
+  } catch (err: any) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+const getReportsWithActionTaken = async (_req: Request, res: Response) => {
+  try {
+    const reports = await ReportService.getReportsWithActionTaken();
+    res.json({ success: true, data: reports });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+
+
 
 export const ReportController = {
   createReport,
@@ -274,6 +319,8 @@ export const ReportController = {
   liveSearchByAddress,
   combinedSearch,
   searchDeletedByReporterId,
-  verifyReport
+  verifyReport,
+  assignActionTeams,
+  getReportsWithActionTaken
 };
 
