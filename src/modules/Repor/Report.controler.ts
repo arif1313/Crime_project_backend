@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ReportService } from "./Report.service";
 import { createReportValidation, updateReportValidation } from "./Report.validation";
 import { AuthRequest } from "../../Middelware/auth.middleware";
+import { NotificationService } from "../Notification/Notification.service";
 
 // Allowed values
 const allowedReportTypes = ["murder", "robbery", "fraud", "assault", "theft", "arson", "other"] as const;
@@ -22,7 +23,13 @@ export const createReport = async (req: Request, res: Response) => {
     if (error) return res.status(400).json({ success: false, message: error.message });
 
     const result = await ReportService.createReport(value);
-
+ //// 2️⃣ Create notification for this report
+if (result?._id && result.reportTitle) {
+  await NotificationService.createNotification(
+    result._id.toString(),
+    `New report created: ${result.reportTitle}`
+  );
+}
     res.status(201).json({ success: true, data: result });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });

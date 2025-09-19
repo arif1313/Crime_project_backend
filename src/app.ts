@@ -8,6 +8,9 @@ import { LocalPoliceStationRouters } from './modules/LocalPolice/LocalPolice.rou
 import { ReportRouter } from './modules/Repor/Report.router'
 import path from 'path'
 import { ActionTeamRouter } from './modules/ActionTeam/ActionTeam.router'
+import { notificationRouter } from './modules/Notification/Notification.router'
+
+
 
 
 const app: Application = express()
@@ -21,7 +24,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 //application routes
 app.use('/api/v1/user',UserRoutes) 
 app.use('/api/v1/auth',AuthRoutes)
-
+app.use("/api/notifications", notificationRouter);
 app.use('/api/v1/local-user',LocalUserRouters)
 app.use('/api/v1/local-police',LocalPoliceStationRouters)
 app.use('/api/v1/report',ReportRouter)
