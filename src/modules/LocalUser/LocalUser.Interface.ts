@@ -2,9 +2,9 @@ import { Schema, model, Types } from "mongoose";
 
 export type ILocalUser = {
   userId: Types.ObjectId;   // ✅ Reference to User
-  firstName: string;
+  firstName?: string;
   middleName?: string;
-  lastName: string;
+  lastName?: string;
   profileImage?: string;
   gender?: "male" | "female" | "other";
   age?: number;

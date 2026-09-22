@@ -7,7 +7,22 @@ import { LocalUserModel } from "./LocalUser.model";
 
 export const createLocalUserController = async (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, age, address, dateOfBirth, email, contactNumber, password } = req.body;
+    
+    const cleanBody: Record<string, any> = {};
+    Object.entries(req.body).forEach(([key, val]) => {
+      if (val !== "" && val !== undefined && val !== null) cleanBody[key] = val;
+    });
+
+    const { error, value } = createLocalUserValidation.validate(cleanBody, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        details: error.details.map((d) => d.message),
+      });
+    }
+
+    const { firstName, lastName, age, address, dateOfBirth, email, contactNumber, password } = value;
 
     // File path
     let profileImage = "";
@@ -15,14 +30,15 @@ export const createLocalUserController = async (req: Request, res: Response) => 
       profileImage = `/uploads/${req.file.filename}`;
     }
 
+    
+    const name = [firstName, lastName].filter(Boolean).join(" ").trim() || email.split("@")[0];
+
+    
+    const userPayload: Record<string, any> = { name, email, password, role: "localUser" };
+    if (contactNumber) userPayload.contactNumber = contactNumber;
+
     // Create main User
-    const user = await UserModel.create({
-      name: `${firstName} ${lastName}`,   // ✅ name দিচ্ছি
-  email, 
-  password,
-  contactNumber,
-  role: "localUser",                  // ✅ role fix করে দিলাম
-});
+    const user = await UserModel.create(userPayload);
 
     // Create LocalUser with reference
     const localUser = await LocalUserModel.create({
@@ -44,6 +60,11 @@ export const createLocalUserController = async (req: Request, res: Response) => 
       data: localUser,
     });
   } catch (error: any) {
+    // ✅ Mongo duplicate-key error কে user-friendly message এ রূপান্তর
+    if (error?.code === 11000) {
+      const field = Object.keys(error.keyPattern || {})[0] || "field";
+      return res.status(409).json({ success: false, message: `This ${field} is already registered.` });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -76,14 +97,25 @@ const updateLocalUserController = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
 
+  
+    const cleanBody: Record<string, any> = {};
+    Object.entries(req.body).forEach(([key, val]) => {
+      if (val !== "" && val !== undefined && val !== null) cleanBody[key] = val;
+    });
+
     // Validate with optional fields
-    const { error, value } = updateLocalUserValidation.validate(req.body, { abortEarly: false });
+    const { error, value } = updateLocalUserValidation.validate(cleanBody, { abortEarly: false });
     if (error) {
       return res.status(400).json({
         success: false,
         message: "Validation error",
         details: error.details.map(d => d.message),
       });
+    }
+
+    
+    if (req.file) {
+      value.profileImage = `/uploads/${req.file.filename}`;
     }
 
     const updatedLocalUser = await LocalUserServices.updateLocalUserById(id, value);
@@ -259,7 +291,7 @@ const unblockLocalUserController = async (req: Request, res: Response) => {
 
 export const searchByUserIdController = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.query; // ✅ query থেকে userId আসবে
+    const { userId } = req.query; 
 
     if (!userId || typeof userId !== "string") {
       return res.status(400).json({ success: false, message: "userId is required" });

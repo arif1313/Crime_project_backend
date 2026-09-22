@@ -12,7 +12,7 @@ router.get("/search/userId", LocalUserControllers.searchByUserIdController);
 router.post("/create", upload.single("profile"), LocalUserControllers.createLocalUserController);
 router.get("/search", LocalUserControllers.getAllLocalUsersController);
 router.get("/search/:id", LocalUserControllers.getLocalUserController);
-router.put("/update/:id", LocalUserControllers.updateLocalUserController);
+router.put("/update/:id", upload.single("profile"), LocalUserControllers.updateLocalUserController);
 router.delete("/delete/:id", LocalUserControllers.softDeleteLocalUserController);
 router.patch("/restore/:id", LocalUserControllers.restoreLocalUserController);
 router.patch("/block/:id", LocalUserControllers.blockLocalUserController);

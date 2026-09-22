@@ -3,7 +3,8 @@ import confiq from "./app/confiq";
 import mongoose from 'mongoose'
 import express from "express";
 import bodyParser from "body-parser";
-
+import dns from 'dns';
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 app.use(bodyParser.json({ limit: "100mb" }));
 app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
 async function main() {
